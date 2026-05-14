@@ -1,5 +1,5 @@
 {
-  "name": "fitplan",
+  "name": "motus",
   "version": "1.0.0",
   "scripts": {
     "start": "live-server --port=3000 --no-browser",

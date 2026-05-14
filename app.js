@@ -17,13 +17,13 @@ let editingId    = null;
 // ── Persistence ──────────────────────────────────────────────
 function load() {
     try {
-        const raw = localStorage.getItem('fitplan_v1');
+        const raw = localStorage.getItem('motus_v1');
         if (raw) state = JSON.parse(raw);
     } catch (_) {}
     DAYS.forEach(d => { if (!state.plan[d.key]) state.plan[d.key] = []; });
 }
 function save() {
-    localStorage.setItem('fitplan_v1', JSON.stringify(state));
+    localStorage.setItem('motus_v1', JSON.stringify(state));
 }
 function uid() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
