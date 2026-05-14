@@ -2,10 +2,12 @@
   "name": "fitplan",
   "version": "1.0.0",
   "scripts": {
+    "start": "live-server --port=3000 --no-browser",
     "sass:build": "sass scss/style.scss style.css",
     "sass:watch": "sass --watch scss/style.scss style.css"
   },
   "devDependencies": {
+    "live-server": "^1.2.2",
     "sass": "^1.77.0"
   }
 }
