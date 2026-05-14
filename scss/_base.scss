@@ -1,22 +1,79 @@
 @use 'variables' as *;
 
+@font-face {
+  font-family: 'Manrope';
+  src: url('../fonts/Manrope-VariableFont_wght.ttf') format('truetype-variations'),
+       url('../fonts/Manrope-VariableFont_wght.ttf') format('truetype');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 *, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  font-feature-settings: "kern" 1;
 }
 
 body {
-    font-family: $font-stack;
-    background: $bg;
-    color: $text;
-    min-height: 100vh;
-    padding-bottom: 80px;
+  font-family: $font;
+  background: $cream;
+  color: $ink;
+  min-height: 100dvh;
+  max-width: 430px;
+  margin: 0 auto;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
 }
 
-::-webkit-scrollbar {
-    width: 6px;
+::-webkit-scrollbar { width: 0; height: 0; }
 
-    &-track { background: transparent; }
-    &-thumb { background: $border; border-radius: 3px; }
+.page {
+  min-height: 100dvh;
+  padding-bottom: calc(#{$nav-h} + 20px);
+}
+
+// Status bar
+.status-bar {
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 21px 24px 0;
+  gap: 154px;
+  position: relative;
+
+  &__time {
+    flex: 1;
+    font-size: 17px;
+    font-weight: 600;
+    font-family: -apple-system, 'SF Pro', system-ui;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__icons {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+  }
+}
+
+// Desktop backdrop
+@media (min-width: 431px) {
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: $cream300;
+    z-index: -1;
+  }
 }

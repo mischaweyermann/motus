@@ -1,0 +1,219 @@
+@use 'variables' as *;
+
+.workout-header {
+  padding: 4px 16px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  &__btn {
+    background: $cream50;
+    border: 1px solid rgba($ink, 0.06);
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    color: $ink;
+    text-decoration: none;
+  }
+
+  &__label {
+    font-size: 13px;
+    font-weight: 700;
+    color: $cream700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+}
+
+.workout-title-area {
+  padding: 8px 20px;
+
+  &__eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $cream700;
+    margin-bottom: 4px;
+  }
+
+  &__title {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    margin-bottom: 6px;
+  }
+
+  &__sub {
+    font-size: 14px;
+    font-weight: 600;
+    color: $cream700;
+  }
+}
+
+// Timer hero card
+.timer-card {
+  margin: 14px 20px;
+  background: $ink;
+  color: $cream;
+  border-radius: 28px;
+  padding: 22px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  &__ring-label {
+    text-align: center;
+    color: $cream;
+  }
+
+  &__time {
+    font-size: 26px;
+    font-weight: 800;
+    font-feature-settings: "tnum";
+    letter-spacing: -0.02em;
+  }
+
+  &__time-sub {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin-top: 2px;
+  }
+
+  &__info { flex: 1; }
+
+  &__cur-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba($cream, 0.65);
+    margin-bottom: 4px;
+  }
+
+  &__cur-value {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  &__play-btn {
+    background: $clay;
+    border: 0;
+    color: $cream;
+    padding: 10px 16px;
+    border-radius: $radius-full;
+    font-weight: 700;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.15s;
+
+    &:active { opacity: 0.85; }
+  }
+
+  &__extra-btn {
+    background: rgba($cream, 0.10);
+    border: 0;
+    color: $cream;
+    padding: 10px 14px;
+    border-radius: $radius-full;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+}
+
+// Sets list
+.sets-section {
+  padding: 6px 20px;
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
+  }
+
+  &__title { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; }
+  &__sub   { font-size: 12px; font-weight: 700; color: $cream700; letter-spacing: 0.04em; }
+}
+
+.set-row {
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 8px;
+
+  &--done {
+    background: $cream50;
+    border: 1px solid rgba($ink, 0.06);
+    color: $ink;
+  }
+
+  &--active {
+    background: $clay;
+    color: $cream;
+  }
+
+  &--next {
+    background: transparent;
+    border: 1.5px dashed rgba($ink, 0.15);
+    color: $ink;
+  }
+
+  &__num {
+    font-weight: 800;
+    font-size: 16px;
+    width: 22px;
+    opacity: 0.5;
+    flex-shrink: 0;
+
+    .set-row--active & { opacity: 1; }
+  }
+
+  &__reps {
+    flex: 1;
+    font-weight: 700;
+    font-size: 15px;
+    font-feature-settings: "tnum";
+  }
+
+  &__badge {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+}
+
+// Next exercise
+.next-exercise {
+  padding: 16px 20px 0;
+
+  &__label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $cream700;
+    margin-bottom: 8px;
+  }
+}

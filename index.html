@@ -1,97 +1,52 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Motus</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>motus</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-    <div>
-        <h1>Motus</h1>
-        <p>Dein persönlicher Trainingsplan</p>
-    </div>
-    <div class="header-actions">
-        <button onclick="clearAllConfirm()">Plan zurücksetzen</button>
-    </div>
-</header>
+<div class="onboarding">
+  <div class="onboarding__hero">
+    <div class="onboarding__blob onboarding__blob--1"></div>
+    <div class="onboarding__blob onboarding__blob--2"></div>
 
-<main>
-    <div class="section-title">Diese Woche</div>
-    <div class="week-grid" id="weekGrid"></div>
-    <div class="day-panel" id="dayPanel">
-        <div class="panel-header">
-            <div>
-                <div class="panel-title" id="panelTitle"></div>
-                <div class="panel-meta" id="panelMeta"></div>
-            </div>
-            <button class="btn-primary" onclick="openAddModal()">+ Übung</button>
-        </div>
-        <div class="exercise-list" id="exerciseList"></div>
-        <div class="copy-row" id="copyRow" style="display:none">
-            <span>Kopieren nach:</span>
-            <div id="copyButtons"></div>
-        </div>
+    <div class="onboarding__logo">
+      <!-- MotusMark exact SVG from UI kit -->
+      <svg class="onboarding__logo-mark" width="28" height="35.6" viewBox="0 0 16.944 21.548" fill="currentColor">
+        <path transform="translate(3.632 5.215)" fill-rule="nonzero" d="M 1.553 0.876 C 5.526 -0.938 6.276 0.562 7.821 0.973 C 9.367 1.384 11.723 1.851 11.723 1.851 C 12.232 1.949 12.561 2.14 12.561 3.342 C 12.561 4.543 8.784 4.507 7.213 5.17 C 5.899 5.724 8.193 7.755 8.561 8.152 C 9.974 9.679 11.525 11.124 12.796 12.758 C 13.82 14.075 13.329 16.271 11.237 15.79 C 9.557 15.15 7.829 14.245 6.13 13.706 C 4.497 13.084 4.637 15.897 3.715 16.248 C 1.429 17.119 -0.456 11.062 0.127 9.557 C 0.804 7.806 3.022 9.759 4.274 8.995 C 4.986 8.56 3.974 7.548 3.666 7.172 C 2.33 5.676 -2.421 2.689 1.553 0.876 Z"/>
+        <path fill-rule="nonzero" d="M 2.24 0.079 C 3.808 -0.293 5.38 0.68 5.747 2.248 C 6.114 3.817 5.137 5.385 3.567 5.748 C 2.003 6.108 0.443 5.136 0.077 3.574 C -0.288 2.013 0.679 0.449 2.24 0.079 Z"/>
+      </svg>
+      <span class="onboarding__logo-text">motus</span>
     </div>
-</main>
 
-<!-- Modal -->
-<div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
-        <div class="modal-head">
-            <h2 id="modalTitle">Übung hinzufügen</h2>
-            <button class="btn-close" onclick="closeModal()">✕</button>
-        </div>
-        <div class="form-group">
-            <label>Übungsname *</label>
-            <input type="text" id="exName" placeholder="z.B. Bankdrücken" autocomplete="off" />
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Sätze</label>
-                <input type="number" id="exSets" placeholder="4" min="1" max="99" />
-            </div>
-            <div class="form-group">
-                <label>Wdh.</label>
-                <input type="number" id="exReps" placeholder="10" min="1" max="999" />
-            </div>
-            <div class="form-group">
-                <label>Gewicht kg</label>
-                <input type="number" id="exWeight" placeholder="—" min="0" max="999" step="0.5" />
-            </div>
-        </div>
-        <div class="form-group">
-            <label>Kategorie</label>
-            <select id="exCategory">
-                <option value="">— Keine —</option>
-                <option value="Brust">Brust</option>
-                <option value="Rücken">Rücken</option>
-                <option value="Schulter">Schulter</option>
-                <option value="Bizeps">Bizeps</option>
-                <option value="Trizeps">Trizeps</option>
-                <option value="Bauch">Bauch</option>
-                <option value="Beine">Beine</option>
-                <option value="Po">Po</option>
-                <option value="Cardio">Cardio</option>
-                <option value="Ganzkörper">Ganzkörper</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Notiz (optional)</label>
-            <input type="text" id="exNote" placeholder="z.B. langsame Exzentrik, Pause 90s …" />
-        </div>
-        <div class="form-actions">
-            <button class="btn-ghost" onclick="closeModal()">Abbrechen</button>
-            <button class="btn-save" onclick="saveExercise()">Speichern</button>
-        </div>
-    </div>
+    <div class="onboarding__eyebrow">Latin · For Movement</div>
+    <h1 class="onboarding__headline">
+      Move every<br>day.<br>
+      <span class="clay">One plan,<br>every sport.</span>
+    </h1>
+  </div>
+
+  <div class="onboarding__sheet">
+    <p class="onboarding__body">
+      Tennis am Mittwoch, Gym am Donnerstag, lange
+      Ausfahrt am Wochenende. Motus hält alles
+      zusammen — Plan, Sessions, Recovery.
+    </p>
+    <a href="today.html" class="btn btn--primary btn--lg">
+      Loslegen
+      <!-- arrow icon -->
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14M13 5l7 7-7 7"/>
+      </svg>
+    </a>
+    <a href="today.html" class="onboarding__link">
+      Schon dabei? <strong>Anmelden</strong>
+    </a>
+  </div>
 </div>
 
-<!-- Toast -->
-<div class="toast" id="toast"></div>
-
-<script src="app.js"></script>
 </body>
 </html>

@@ -1,0 +1,114 @@
+@use 'variables' as *;
+
+// Pill-shaped tab bar with gradient fade above it (from UI kit)
+.bottom-nav-wrap {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  padding: 10px 14px 28px;
+  background: linear-gradient(
+    180deg,
+    rgba($cream, 0) 0%,
+    rgba($cream, 0.85) 35%,
+    $cream 60%
+  );
+  z-index: 200;
+  pointer-events: none;
+}
+
+.bottom-nav {
+  background: $ink;
+  border-radius: 28px;
+  padding: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 12px 30px rgba($ink, 0.18);
+  pointer-events: all;
+
+  &__item {
+    flex: 1;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    color: rgba($cream, 0.55);
+    padding: 10px 4px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    text-decoration: none;
+    font-family: $font;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    transition: color 0.15s;
+
+    svg { display: block; }
+
+    &.active { color: $clay; }
+  }
+
+  &__fab {
+    background: $clay;
+    border: 0;
+    color: $cream;
+    width: 52px;
+    height: 52px;
+    border-radius: $radius-full;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    margin: -12px 4px;
+    box-shadow: 0 6px 16px rgba($clay, 0.4);
+    flex-shrink: 0;
+    transition: transform 0.1s;
+    text-decoration: none;
+
+    &:active { transform: scale(0.93); }
+    svg { display: block; }
+  }
+}
+
+// App header
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px 14px;
+  gap: 12px;
+
+  &__text { min-width: 0; flex: 1; }
+
+  &__eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $cream700;
+    margin-bottom: 4px;
+  }
+
+  &__title {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: $ink;
+    line-height: 1.05;
+  }
+
+  &__action {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: $cream50;
+    border: 1px solid rgba($ink, 0.06);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+}

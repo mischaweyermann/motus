@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>motus · Fertig!</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="complete-page">
+
+  <!-- Status bar -->
+  <div class="status-bar" style="padding: 0 6px;">
+    <div class="status-bar__time">9:41</div>
+    <div class="status-bar__icons">
+      <svg width="19" height="12" viewBox="0 0 19 12"><rect x="0" y="7.5" width="3.2" height="4.5" rx="0.7" fill="currentColor"/><rect x="4.8" y="5" width="3.2" height="7" rx="0.7" fill="currentColor"/><rect x="9.6" y="2.5" width="3.2" height="9.5" rx="0.7" fill="currentColor"/><rect x="14.4" y="0" width="3.2" height="12" rx="0.7" fill="currentColor"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 3.2C10.8 3.2 12.9 4.1 14.4 5.6L15.5 4.5C13.7 2.7 11.2 1.5 8.5 1.5C5.8 1.5 3.3 2.7 1.5 4.5L2.6 5.6C4.1 4.1 6.2 3.2 8.5 3.2Z" fill="currentColor"/><path d="M8.5 6.8C9.9 6.8 11.1 7.3 12 8.2L13.1 7.1C11.8 5.9 10.2 5.1 8.5 5.1C6.8 5.1 5.2 5.9 3.9 7.1L5 8.2C5.9 7.3 7.1 6.8 8.5 6.8Z" fill="currentColor"/><circle cx="8.5" cy="10.5" r="1.5" fill="currentColor"/></svg>
+      <svg width="27" height="13" viewBox="0 0 27 13"><rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="currentColor" stroke-opacity="0.35" fill="none"/><rect x="2" y="2" width="20" height="9" rx="2" fill="currentColor"/><path d="M25 4.5V8.5C25.8 8.2 26.5 7.2 26.5 6.5C26.5 5.8 25.8 4.8 25 4.5Z" fill="currentColor" fill-opacity="0.4"/></svg>
+    </div>
+  </div>
+
+  <!-- Success ring -->
+  <div class="success-ring">
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#FAF7F1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </div>
+
+  <div class="complete-label">Session Abgeschlossen</div>
+  <h1 class="complete-title">
+    Stark. Das war<br>
+    <span style="color:#C24B2E" id="sessionNameDisplay">Push · Upper Body.</span>
+  </h1>
+
+  <!-- Stats -->
+  <div class="complete-stats">
+    <div class="complete-stat">
+      <div class="complete-stat__label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Zeit
+      </div>
+      <div class="complete-stat__value" id="statTime">42'</div>
+    </div>
+    <div class="complete-stat">
+      <div class="complete-stat__label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Kcal
+      </div>
+      <div class="complete-stat__value" id="statKcal">~320</div>
+    </div>
+    <div class="complete-stat">
+      <div class="complete-stat__label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11h4M14 11h4M10 8v6M14 8v6M3 11h3M18 11h3"/></svg>
+        Übungen
+      </div>
+      <div class="complete-stat__value" id="statExercises">6</div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="complete-actions">
+    <a href="today.html" class="btn btn--ink btn--lg">Fertig</a>
+    <a href="#" class="note-link">Notiz hinzufügen</a>
+  </div>
+
+</div>
+
+<script src="js/app.js"></script>
+<script>
+  const lastSession = JSON.parse(sessionStorage.getItem('motus_last_session') || '{}');
+  if (lastSession.name) {
+    document.getElementById('sessionNameDisplay').textContent = lastSession.name + '.';
+    if (lastSession.duration) document.getElementById('statTime').textContent = lastSession.duration + "'";
+    if (lastSession.kcal) document.getElementById('statKcal').textContent = '~' + lastSession.kcal;
+    if (lastSession.exercises) document.getElementById('statExercises').textContent = lastSession.exercises;
+  }
+</script>
+</body>
+</html>

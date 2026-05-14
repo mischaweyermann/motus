@@ -1,0 +1,117 @@
+@use 'variables' as *;
+
+.onboarding {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: $ink;
+
+  &__hero {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    min-height: 60vh;
+    background-image: repeating-linear-gradient(
+      28deg,
+      transparent,
+      transparent 14px,
+      rgba(255, 255, 255, 0.025) 14px,
+      rgba(255, 255, 255, 0.025) 15px
+    );
+  }
+
+  &__blob {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+
+    &--1 {
+      width: 260px;
+      height: 260px;
+      top: -80px;
+      right: -50px;
+      background: #3A1E10;
+    }
+
+    &--2 {
+      width: 160px;
+      height: 200px;
+      top: 80px;
+      right: 50px;
+      background: #2A1408;
+      border-radius: 60% 40% 50% 50%;
+    }
+  }
+
+  &__logo {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 44px;
+  }
+
+  &__logo-mark { color: $clay; flex-shrink: 0; }
+
+  &__logo-text {
+    font-size: 22px;
+    font-weight: 700;
+    color: $cream;
+    letter-spacing: -0.01em;
+  }
+
+  &__eyebrow {
+    position: relative;
+    z-index: 1;
+    margin-top: auto;
+    margin-bottom: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba($cream, 0.35);
+  }
+
+  &__headline {
+    position: relative;
+    z-index: 1;
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+    color: $cream;
+    margin-bottom: 40px;
+
+    .clay { color: $clay; }
+  }
+
+  &__sheet {
+    background: $cream;
+    border-radius: 24px 24px 0 0;
+    padding: 28px 24px 52px;
+  }
+
+  &__body {
+    font-size: 15px;
+    line-height: 1.65;
+    color: $cream700;
+    margin-bottom: 28px;
+    font-weight: 500;
+  }
+
+  &__link {
+    display: block;
+    text-align: center;
+    margin-top: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: $cream700;
+    text-decoration: none;
+
+    strong { color: $ink; font-weight: 800; }
+  }
+}

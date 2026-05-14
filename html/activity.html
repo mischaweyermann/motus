@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>motus · Aktivität</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span style="font-size:15px;font-weight:700;">9:41</span>
+    <svg viewBox="0 0 60 16" fill="currentColor" style="width:60px;height:16px;color:#1A1912;opacity:.7;">
+      <rect x="0"  y="4" width="6" height="10" rx="1"/>
+      <rect x="9"  y="2" width="6" height="12" rx="1"/>
+      <rect x="18" y="0" width="6" height="14" rx="1"/>
+      <circle cx="34" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M30 6 Q34 3 38 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M29 9 Q34 5 39 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <rect x="48" y="4" width="11" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/>
+      <rect x="49.5" y="5.5" width="6" height="5" rx="1"/>
+      <rect x="59" y="6" width="1.5" height="4" rx="0.7"/>
+    </svg>
+  </div>
+
+  <!-- Header -->
+  <div class="activity-header">
+    <div class="activity-header__label">Letzte 7 Tage</div>
+    <h1>Aktivität</h1>
+  </div>
+
+  <!-- Training time card -->
+  <div class="training-time-card">
+    <div class="training-time-card__head">
+      <span class="training-time-card__label">Trainingszeit</span>
+      <span class="training-time-card__delta">+18% vs LW</span>
+    </div>
+    <div class="training-time-card__value">6h <span>24'</span></div>
+    <!-- Week bars Mo-So -->
+    <div class="training-time-card__bars">
+      <div class="week-bar">
+        <div class="week-bar__fill filled" style="height:55%"></div>
+        <span class="week-bar__label">M</span>
+      </div>
+      <div class="week-bar">
+        <div class="week-bar__fill" style="height:20%"></div>
+        <span class="week-bar__label">D</span>
+      </div>
+      <div class="week-bar">
+        <div class="week-bar__fill filled" style="height:70%"></div>
+        <span class="week-bar__label">M</span>
+      </div>
+      <div class="week-bar">
+        <div class="week-bar__fill peak" style="height:100%"></div>
+        <span class="week-bar__label">D</span>
+      </div>
+      <div class="week-bar">
+        <div class="week-bar__fill" style="height:10%"></div>
+        <span class="week-bar__label">F</span>
+      </div>
+      <div class="week-bar">
+        <div class="week-bar__fill filled" style="height:80%"></div>
+        <span class="week-bar__label">S</span>
+      </div>
+      <div class="week-bar">
+        <div class="week-bar__fill" style="height:0%"></div>
+        <span class="week-bar__label">S</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Metric tiles -->
+  <div class="activity-tiles">
+    <!-- Distanz -->
+    <div class="activity-tile">
+      <div class="activity-tile__head">
+        <span class="activity-tile__label">Distanz</span>
+        <span class="activity-tile__badge">Woche</span>
+      </div>
+      <div class="activity-tile__value">42.6<span>km</span></div>
+      <div class="activity-tile__sub">Cycling + Run</div>
+    </div>
+    <!-- Ruhepuls -->
+    <div class="activity-tile activity-tile--dark">
+      <div class="activity-tile__head">
+        <span class="activity-tile__label">Ruhepuls</span>
+      </div>
+      <div class="activity-tile__value">58<span>bpm</span></div>
+      <div class="activity-tile__delta">-3 vs LW</div>
+    </div>
+  </div>
+
+  <!-- Session history -->
+  <div class="history-section">
+    <div class="history-section__header">Letzte Sessions</div>
+
+    <div class="history-item">
+      <div class="history-item__icon history-item__icon--cycle">🚴</div>
+      <div class="history-item__info">
+        <div class="history-item__name">Morning Ride</div>
+        <div class="history-item__sub">Mo · 28 km · 1h 12m · Z2</div>
+      </div>
+      <div class="history-item__badge">208w</div>
+    </div>
+
+    <div class="history-item">
+      <div class="history-item__icon history-item__icon--gym">+</div>
+      <div class="history-item__info">
+        <div class="history-item__name">Pull · Back</div>
+        <div class="history-item__sub">So · 6 Übungen · 4.8t Volumen</div>
+      </div>
+      <div class="history-item__badge">PR</div>
+    </div>
+
+    <div class="history-item">
+      <div class="history-item__icon history-item__icon--tennis">🎾</div>
+      <div class="history-item__info">
+        <div class="history-item__name">Drill · Topspin</div>
+        <div class="history-item__sub">Sa · 60 min · Court 2</div>
+      </div>
+      <div class="history-item__arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+  <a href="today.html" class="bottom-nav__item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+      <polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+    Today
+  </a>
+  <a href="library.html" class="bottom-nav__item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+    Plan
+  </a>
+  <a href="library.html" class="bottom-nav__fab" aria-label="Neu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <line x1="12" y1="5" x2="12" y2="19"/>
+      <line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
+  </a>
+  <a href="activity.html" class="bottom-nav__item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+    </svg>
+    Activity
+  </a>
+  <a href="profile.html" class="bottom-nav__item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+    You
+  </a>
+</nav>
+
+</body>
+</html>

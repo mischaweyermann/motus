@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>motus · Sessions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span style="font-size:15px;font-weight:700;">9:41</span>
+    <svg viewBox="0 0 60 16" fill="currentColor" style="width:60px;height:16px;color:#1A1912;opacity:.7;">
+      <rect x="0"  y="4" width="6" height="10" rx="1"/>
+      <rect x="9"  y="2" width="6" height="12" rx="1"/>
+      <rect x="18" y="0" width="6" height="14" rx="1"/>
+      <circle cx="34" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M30 6 Q34 3 38 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M29 9 Q34 5 39 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <rect x="48" y="4" width="11" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/>
+      <rect x="49.5" y="5.5" width="6" height="5" rx="1"/>
+      <rect x="59" y="6" width="1.5" height="4" rx="0.7"/>
+    </svg>
+  </div>
+
+  <!-- Header -->
+  <div class="library-header">
+    <div class="library-header__top">
+      <span class="library-header__label">Bibliothek</span>
+      <button class="library-header__settings" aria-label="Einstellungen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+    <h1>Sessions</h1>
+  </div>
+
+  <!-- Filter chips -->
+  <div class="filter-row" id="filterRow">
+    <button class="chip active" data-filter="all">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+      </svg>
+      Alle
+    </button>
+    <button class="chip" data-filter="Gym">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6.5 6.5h11v11h-11z" opacity=".3"/><path d="M2 12h3M19 12h3M8 2v3M16 2v3M8 19v3M16 19v3"/>
+      </svg>
+      Gym
+    </button>
+    <button class="chip" data-filter="Tennis">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M6 12 Q12 6 18 12" stroke-linecap="round"/>
+        <path d="M6 12 Q12 18 18 12" stroke-linecap="round"/>
+      </svg>
+      Tennis
+    </button>
+    <button class="chip" data-filter="Cycle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/>
+        <path d="M15 6a1 1 0 000-2v2zm-3 11L9 6M5.5 17.5l2-5L12 17h6.5"/>
+      </svg>
+      Cycle
+    </button>
+    <button class="chip" data-filter="Run">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="13" cy="4" r="2"/>
+        <path d="M9 20l1.5-5L8 12l4-4 2 4h4"/>
+        <path d="M6 18l3-3"/>
+      </svg>
+      Run
+    </button>
+    <button class="chip" data-filter="Mobility">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2v20M2 12h20"/>
+      </svg>
+      Mobility
+    </button>
+  </div>
+
+  <!-- Featured / Empfehlung -->
+  <div class="featured-card" id="featuredCard" onclick="location.href='player.html?session=push-upper'">
+    <span class="featured-card__badge">Mittel</span>
+    <span class="featured-card__duration">42'</span>
+    <div class="featured-card__content">
+      <div class="featured-card__title">Push · Upper Body</div>
+      <div class="featured-card__sub">6 Übungen · ~320 kcal</div>
+    </div>
+    <span class="featured-card__symbol">+</span>
+  </div>
+
+  <div class="sessions-label" id="sessionsLabel">8 Sessions</div>
+
+  <!-- Sessions grid -->
+  <div class="sessions-grid" id="sessionsGrid"></div>
+
+</div>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+  <a href="today.html" class="bottom-nav__item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+      <polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+    Today
+  </a>
+  <a href="library.html" class="bottom-nav__item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+    Plan
+  </a>
+  <a href="library.html" class="bottom-nav__fab" aria-label="Neu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <line x1="12" y1="5" x2="12" y2="19"/>
+      <line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
+  </a>
+  <a href="activity.html" class="bottom-nav__item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+    </svg>
+    Activity
+  </a>
+  <a href="profile.html" class="bottom-nav__item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+    You
+  </a>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/app.js"></script>
+<script src="js/library.js"></script>
+</body>
+</html>

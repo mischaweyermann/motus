@@ -1,0 +1,464 @@
+@use 'variables' as *;
+
+// ── Pill button ───────────────────────────────────────────────────
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: $font;
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity 0.15s, transform 0.1s;
+  letter-spacing: -0.005em;
+  line-height: 1;
+
+  &:active { transform: scale(0.97); opacity: 0.85; }
+
+  &--lg  { padding: 17px 26px; border-radius: $radius-full; font-size: 17px; width: 100%; }
+  &--md  { padding: 13px 20px; border-radius: $radius-full; font-size: 15px; }
+  &--sm  { padding: 8px 14px;  border-radius: $radius-full; font-size: 13px; }
+
+  &--primary   { background: $clay; color: $cream; }
+  &--ink       { background: $ink; color: $cream; }
+  &--secondary { background: transparent; border: 1.5px solid rgba($ink, 0.18); color: $ink; }
+  &--ghost     { background: transparent; color: $ink; }
+  &--cream     { background: $cream100; color: $ink; }
+}
+
+// ── Card ─────────────────────────────────────────────────────────
+.card {
+  border-radius: $radius-lg;
+  padding: 18px;
+
+  &--cream {
+    background: $cream50;
+    border: 1px solid rgba($ink, 0.06);
+    box-shadow: 0 4px 12px rgba($ink, 0.05);
+  }
+
+  &--ink {
+    background: $ink;
+    color: $cream;
+    box-shadow: 0 4px 12px rgba($ink, 0.05);
+  }
+
+  &--clay {
+    background: $clay;
+    color: $cream;
+  }
+
+  &--flat { background: $cream100; }
+
+  &--outline {
+    background: transparent;
+    border: 1.5px solid rgba($ink, 0.12);
+  }
+}
+
+// ── Sport card cover (for session cards) ─────────────────────────
+.sess-card {
+  border-radius: $radius;
+  height: 150px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+
+  &--gym      { background: $clay; }
+  &--tennis   { background: $ink; }
+  &--cycle    { background: $clay; }
+  &--run      { background: $success; }
+  &--mobility { background: $cream500; color: $ink !important; }
+  &--default  { background: $ink; }
+
+  &__badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: rgba($cream, 0.18);
+    color: rgba($cream, 0.9);
+    padding: 3px 9px;
+    border-radius: $radius-full;
+  }
+
+  &__duration {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba($cream, 0.65);
+  }
+
+  &__content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px;
+  }
+
+  &__title {
+    font-size: 14px;
+    font-weight: 800;
+    color: $cream;
+    letter-spacing: -0.005em;
+  }
+}
+
+// ── Stat tile ─────────────────────────────────────────────────────
+.stat-tile {
+  border-radius: $radius-lg;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 130px;
+
+  &--cream {
+    background: $cream50;
+    border: 1px solid rgba($ink, 0.06);
+    box-shadow: 0 4px 12px rgba($ink, 0.05);
+    color: $ink;
+  }
+
+  &--ink {
+    background: $ink;
+    color: $cream;
+  }
+
+  &--clay {
+    background: $clay;
+    color: $cream;
+  }
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.65;
+  }
+
+  &__accent {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: $radius-full;
+
+    .stat-tile--ink &, .stat-tile--clay & {
+      background: rgba($cream, 0.12);
+      color: $cream;
+    }
+
+    .stat-tile--cream & {
+      background: rgba($clay, 0.14);
+      color: $clay;
+    }
+  }
+
+  &__value {
+    font-weight: 800;
+    font-size: 42px;
+    letter-spacing: -0.025em;
+    line-height: 1;
+    font-feature-settings: "tnum";
+  }
+
+  &__unit {
+    font-size: 18px;
+    font-weight: 700;
+    margin-left: 4px;
+    opacity: 0.65;
+  }
+
+  &__sub {
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.65;
+  }
+
+  &__bar {
+    height: 6px;
+    border-radius: $radius-full;
+    overflow: hidden;
+
+    .stat-tile--ink &, .stat-tile--clay & {
+      background: rgba($cream, 0.14);
+    }
+
+    .stat-tile--cream & { background: rgba($ink, 0.10); }
+
+    &-fill {
+      height: 100%;
+      border-radius: $radius-full;
+
+      .stat-tile--ink & { background: $cream; }
+      .stat-tile--clay & { background: $cream; }
+      .stat-tile--cream & { background: $clay; }
+    }
+  }
+}
+
+// ── Activity ring ─────────────────────────────────────────────────
+.ring {
+  position: relative;
+
+  svg { transform: rotate(-90deg); }
+
+  &__track { fill: none; }
+  &__fill {
+    fill: none;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.6s ease;
+  }
+
+  &__center {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    text-align: center;
+  }
+}
+
+// ── List row ──────────────────────────────────────────────────────
+.list-row {
+  background: $cream50;
+  border: 1px solid rgba($ink, 0.06);
+  border-radius: $radius;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:active { opacity: 0.75; }
+
+  &__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+
+    &--ink    { background: $ink; }
+    &--clay   { background: $clay; }
+    &--success { background: $success; }
+    &--cream300 { background: $cream300; }
+  }
+
+  &__content { flex: 1; min-width: 0; }
+  &__title   { font-size: 15px; font-weight: 700; color: $ink; letter-spacing: -0.005em; }
+  &__sub     { font-size: 12px; font-weight: 600; color: $cream700; margin-top: 2px; }
+}
+
+// ── Sport chip (4-up grid) ────────────────────────────────────────
+.sport-chips {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.sport-chip {
+  border-radius: 16px;
+  padding: 12px;
+  aspect-ratio: 0.95 / 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  border: none;
+  font-family: $font;
+  transition: opacity 0.15s;
+
+  &:active { opacity: 0.8; }
+
+  &--clay    { background: $clay; color: $cream; }
+  &--ink     { background: $ink; color: $cream; }
+  &--cream   { background: $cream100; color: $ink; border: 1px solid rgba($ink, 0.06); }
+  &--outline { background: transparent; color: $ink; border: 1.5px solid rgba($ink, 0.18); }
+
+  &__name {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: -0.005em;
+  }
+
+  &__meta {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.65;
+  }
+}
+
+// ── Log sheet modal ───────────────────────────────────────────────
+.log-sheet-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba($ink, 0.35);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  max-width: 430px;
+  margin: 0 auto;
+
+  &.hidden { display: none; }
+}
+
+.log-sheet {
+  background: $cream;
+  border-radius: 24px 24px 0 0;
+  padding: 14px 20px 40px;
+  max-height: 78%;
+  overflow-y: auto;
+
+  &__handle {
+    width: 40px;
+    height: 4px;
+    border-radius: $radius-full;
+    background: rgba($ink, 0.18);
+    margin: 4px auto 16px;
+  }
+
+  &__eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $cream700;
+    margin-bottom: 4px;
+  }
+
+  &__title {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  &__sport-btn {
+    background: $cream50;
+    color: $ink;
+    border: 1px solid rgba($ink, 0.06);
+    border-radius: 16px;
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    font-family: $font;
+    font-size: 14px;
+    font-weight: 800;
+    transition: all 0.15s;
+
+    &.selected {
+      background: $clay;
+      color: $cream;
+      border-color: transparent;
+    }
+  }
+
+  &__field {
+    background: $cream50;
+    border: 1px solid rgba($ink, 0.10);
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+
+    &-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: $cream700;
+    }
+
+    &-value {
+      font-size: 15px;
+      font-weight: 700;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 18px;
+
+    .btn--primary { flex: 1; }
+  }
+}
+
+// ── Toast ─────────────────────────────────────────────────────────
+.toast {
+  position: fixed;
+  bottom: calc(#{$nav-h} + 20px);
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  background: $ink;
+  color: $cream;
+  padding: 10px 22px;
+  border-radius: $radius-full;
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.25s;
+  white-space: nowrap;
+  z-index: 500;
+  max-width: calc(100vw - 40px);
+
+  &.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+// ── Mini stat ─────────────────────────────────────────────────────
+.mini-stat {
+  background: $cream50;
+  border: 1px solid rgba($ink, 0.06);
+  border-radius: $radius;
+  padding: 14px;
+
+  &__label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: $cream700;
+    margin-bottom: 4px;
+  }
+
+  &__value {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    font-feature-settings: "tnum";
+  }
+}

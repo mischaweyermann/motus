@@ -1,20 +1,29 @@
-// ── Colors ────────────────────────────────────────────────────
-$bg:          #0d0d14;
-$surface:     #16161f;
-$surface2:    #1e1e2a;
-$surface3:    #272737;
-$accent:      #7c6fff;
-$accent-glow: rgba(124, 111, 255, 0.12);
-$red:         #ff5c7a;
-$green:       #4fffaa;
-$yellow:      #ffd166;
-$text:        #e0e0f0;
-$text-muted:  #5a5a88;
-$border:      #22223a;
+// ── Motus Design Tokens (from UI kit components.jsx) ────────────
 
-// ── Shape ─────────────────────────────────────────────────────
-$radius:    14px;
-$radius-sm: 9px;
+$clay:       #C24B2E;
+$ink:        #1F1F1F;
+$cream:      #F2EDE3;
+$cream50:    #FAF7F1;
+$cream100:   #F6F1E7;
+$cream300:   #E8E1D2;
+$cream500:   #B7AB91;
+$cream600:   #8C8270;
+$cream700:   #5F5849;
+$clay50:     #FBEBE4;
+$success:    #5E8A4C;
+$success-bg: #E6EBD9;
 
-// ── Typography ────────────────────────────────────────────────
-$font-stack: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+$white:      #FFFFFF;
+
+// Shape
+$radius-sm:   12px;
+$radius:      16px;
+$radius-lg:   20px;
+$radius-xl:   24px;
+$radius-full: 999px;
+
+// Layout
+$nav-h: 88px;
+
+// Typography
+$font: 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;

@@ -1,0 +1,116 @@
+@use 'variables' as *;
+
+// Training time card
+.training-card {
+  margin: 0 20px 16px;
+  background: $cream50;
+  border: 1px solid rgba($ink, 0.06);
+  border-radius: $radius-xl;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba($ink, 0.05);
+
+  &__top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+
+  &__label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $cream700;
+    margin-bottom: 4px;
+  }
+
+  &__value {
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    font-feature-settings: "tnum";
+    line-height: 1;
+  }
+
+  &__unit { font-size: 22px; color: $cream700; }
+
+  &__delta {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 10px;
+    border-radius: $radius-full;
+    background: rgba($success, 0.18);
+    color: #3E5A2A;
+  }
+
+  &__bars {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 6px;
+    height: 80px;
+  }
+}
+
+.activity-bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+
+  &__fill {
+    width: 100%;
+    border-radius: 6px;
+    background: $ink;
+    opacity: 0.85;
+
+    &.peak {
+      background: $clay;
+      opacity: 1;
+    }
+  }
+
+  &__label {
+    font-size: 10px;
+    font-weight: 700;
+    color: $cream700;
+    flex-shrink: 0;
+  }
+}
+
+// Stat tiles row
+.activity-stat-row {
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+// History section
+.history-section {
+  padding: 6px 20px;
+
+  &__header {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin: 10px 0;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+.history-right {
+  font-weight: 800;
+  font-size: 16px;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.01em;
+  flex-shrink: 0;
+}

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>motus · Today</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <div class="status-bar__time">9:41</div>
+    <div class="status-bar__icons">
+      <!-- Signal bars -->
+      <svg width="19" height="12" viewBox="0 0 19 12">
+        <rect x="0"   y="7.5" width="3.2" height="4.5" rx="0.7" fill="#1F1F1F"/>
+        <rect x="4.8" y="5"   width="3.2" height="7"   rx="0.7" fill="#1F1F1F"/>
+        <rect x="9.6" y="2.5" width="3.2" height="9.5" rx="0.7" fill="#1F1F1F"/>
+        <rect x="14.4" y="0" width="3.2" height="12"   rx="0.7" fill="#1F1F1F"/>
+      </svg>
+      <!-- WiFi -->
+      <svg width="17" height="12" viewBox="0 0 17 12">
+        <path d="M8.5 3.2C10.8 3.2 12.9 4.1 14.4 5.6L15.5 4.5C13.7 2.7 11.2 1.5 8.5 1.5C5.8 1.5 3.3 2.7 1.5 4.5L2.6 5.6C4.1 4.1 6.2 3.2 8.5 3.2Z" fill="#1F1F1F"/>
+        <path d="M8.5 6.8C9.9 6.8 11.1 7.3 12 8.2L13.1 7.1C11.8 5.9 10.2 5.1 8.5 5.1C6.8 5.1 5.2 5.9 3.9 7.1L5 8.2C5.9 7.3 7.1 6.8 8.5 6.8Z" fill="#1F1F1F"/>
+        <circle cx="8.5" cy="10.5" r="1.5" fill="#1F1F1F"/>
+      </svg>
+      <!-- Battery -->
+      <svg width="27" height="13" viewBox="0 0 27 13">
+        <rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="#1F1F1F" stroke-opacity="0.35" fill="none"/>
+        <rect x="2" y="2" width="20" height="9" rx="2" fill="#1F1F1F"/>
+        <path d="M25 4.5V8.5C25.8 8.2 26.5 7.2 26.5 6.5C26.5 5.8 25.8 4.8 25 4.5Z" fill="#1F1F1F" fill-opacity="0.4"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- App header -->
+  <div class="app-header">
+    <div class="app-header__text">
+      <div class="app-header__eyebrow" id="todayDate">Donnerstag · 14 Mai</div>
+      <div class="app-header__title">
+        Guten Morgen,<br>
+        <span style="color:#C24B2E" id="userName">Lia.</span>
+      </div>
+    </div>
+    <button class="app-header__action" aria-label="Benachrichtigungen">
+      <!-- bell icon -->
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1F1F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 16v-5a6 6 0 10-12 0v5l-2 3h16zM10 20a2 2 0 004 0"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Hero session card -->
+  <div class="hero-session-card">
+    <!-- MotusMark watermark -->
+    <div class="hero-session-card__mark">
+      <svg width="140" height="178" viewBox="0 0 16.944 21.548" fill="currentColor">
+        <path transform="translate(3.632 5.215)" fill-rule="nonzero" d="M 1.553 0.876 C 5.526 -0.938 6.276 0.562 7.821 0.973 C 9.367 1.384 11.723 1.851 11.723 1.851 C 12.232 1.949 12.561 2.14 12.561 3.342 C 12.561 4.543 8.784 4.507 7.213 5.17 C 5.899 5.724 8.193 7.755 8.561 8.152 C 9.974 9.679 11.525 11.124 12.796 12.758 C 13.82 14.075 13.329 16.271 11.237 15.79 C 9.557 15.15 7.829 14.245 6.13 13.706 C 4.497 13.084 4.637 15.897 3.715 16.248 C 1.429 17.119 -0.456 11.062 0.127 9.557 C 0.804 7.806 3.022 9.759 4.274 8.995 C 4.986 8.56 3.974 7.548 3.666 7.172 C 2.33 5.676 -2.421 2.689 1.553 0.876 Z"/>
+        <path fill-rule="nonzero" d="M 2.24 0.079 C 3.808 -0.293 5.38 0.68 5.747 2.248 C 6.114 3.817 5.137 5.385 3.567 5.748 C 2.003 6.108 0.443 5.136 0.077 3.574 C -0.288 2.013 0.679 0.449 2.24 0.079 Z"/>
+      </svg>
+    </div>
+    <div class="hero-session-card__content">
+      <div class="hero-session-card__eyebrow">Heute · Strength A</div>
+      <div class="hero-session-card__title">Push · Upper Body</div>
+      <div class="hero-session-card__meta">
+        <span>
+          <!-- clock icon -->
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          42 min
+        </span>
+        <span>
+          <!-- bolt icon -->
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>
+          6 lifts
+        </span>
+        <span>
+          <!-- flame icon -->
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s4 4 4 8a4 4 0 11-8 0c0-2 1-3 1-3s-3 1-3 5a6 6 0 0012 0c0-6-6-10-6-10z"/></svg>
+          Mittel
+        </span>
+      </div>
+      <div class="hero-session-card__actions">
+        <a href="workout.html?session=push-upper" class="btn btn--primary btn--md">
+          Session starten
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+        <button class="btn btn--ghost btn--md" style="color:rgba(242,237,227,0.75)" onclick="showToast('Session verschoben')">Verschieben</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick stats -->
+  <div class="stat-row">
+    <div class="stat-tile stat-tile--cream">
+      <div class="stat-tile__head">
+        <span class="stat-tile__eyebrow">Heute</span>
+        <span class="stat-tile__accent">+12%</span>
+      </div>
+      <div class="stat-tile__value">8,420</div>
+      <div class="stat-tile__sub">Steps · Ziel 7,500</div>
+      <div class="stat-tile__bar"><div class="stat-tile__bar-fill" style="width:90%"></div></div>
+    </div>
+    <div class="stat-tile stat-tile--ink">
+      <div class="stat-tile__head">
+        <span class="stat-tile__eyebrow">Diese Woche</span>
+      </div>
+      <div class="stat-tile__value">3<span class="stat-tile__unit" style="color:#C24B2E">/</span><span style="font-size:42px;font-weight:800;">5</span></div>
+      <div class="stat-tile__sub">Sessions on plan</div>
+      <div class="stat-tile__bar"><div class="stat-tile__bar-fill" style="width:60%"></div></div>
+    </div>
+  </div>
+
+  <!-- Sport chips section -->
+  <div class="sports-section">
+    <div class="section-header">
+      <div class="section-header__title">Deine Sportarten</div>
+      <button class="section-header__action">Anpassen</button>
+    </div>
+    <div class="sport-chips">
+      <div class="sport-chip sport-chip--clay">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 11h4M14 11h4M10 8v6M14 8v6M3 11h3M18 11h3"/>
+        </svg>
+        <div>
+          <div class="sport-chip__name">Gym</div>
+          <div class="sport-chip__meta">Heute</div>
+        </div>
+      </div>
+      <div class="sport-chip sport-chip--ink">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.5-4-9s1.5-6.5 4-9z"/>
+        </svg>
+        <div>
+          <div class="sport-chip__name">Tennis</div>
+          <div class="sport-chip__meta">Mi</div>
+        </div>
+      </div>
+      <div class="sport-chip sport-chip--cream">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17l4-9h3l3 6M10 8l-1-3h3"/>
+        </svg>
+        <div>
+          <div class="sport-chip__name">Cycle</div>
+          <div class="sport-chip__meta">Fr</div>
+        </div>
+      </div>
+      <div class="sport-chip sport-chip--outline">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="14" cy="4.5" r="2"/><path d="M9 21l1.5-6L7 12.5l2-6 3 2.5 3.5-1M14 21l-2-6 3-3.5"/>
+        </svg>
+        <div>
+          <div class="sport-chip__name">Run</div>
+          <div class="sport-chip__meta">Sa</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upcoming -->
+  <div class="upcoming-section">
+    <div class="upcoming-section__header">Kommende Woche</div>
+    <div class="upcoming-section__list">
+
+      <div class="list-row">
+        <div class="list-row__icon list-row__icon--ink">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FAF7F1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.5-4-9s1.5-6.5 4-9z"/>
+          </svg>
+        </div>
+        <div class="list-row__content">
+          <div class="list-row__title">Tennis · Court 4</div>
+          <div class="list-row__sub">Mi · 18:00 · mit Jonas</div>
+        </div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8C8270" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+
+      <div class="list-row">
+        <div class="list-row__icon list-row__icon--clay">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FAF7F1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17l4-9h3l3 6M10 8l-1-3h3"/>
+          </svg>
+        </div>
+        <div class="list-row__content">
+          <div class="list-row__title">Endurance Ride</div>
+          <div class="list-row__sub">Fr · 07:30 · 90 min · Z2</div>
+        </div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8C8270" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+
+      <div class="list-row">
+        <div class="list-row__icon list-row__icon--success">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FAF7F1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="14" cy="4.5" r="2"/><path d="M9 21l1.5-6L7 12.5l2-6 3 2.5 3.5-1M14 21l-2-6 3-3.5"/>
+          </svg>
+        </div>
+        <div class="list-row__content">
+          <div class="list-row__title">Long Run</div>
+          <div class="list-row__sub">Sa · 09:00 · 14 km</div>
+        </div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8C8270" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Bottom nav -->
+<div class="bottom-nav-wrap">
+  <nav class="bottom-nav">
+    <a href="today.html" class="bottom-nav__item active">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9M5 10v10h6v-6h2v6h6V10"/></svg>
+      Today
+    </a>
+    <a href="plan.html" class="bottom-nav__item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+      Plan
+    </a>
+    <button class="bottom-nav__fab" onclick="document.getElementById('logSheet').classList.remove('hidden')" aria-label="Log">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+    <a href="activity.html" class="bottom-nav__item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>
+      Activity
+    </a>
+    <a href="profile.html" class="bottom-nav__item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+      You
+    </a>
+  </nav>
+</div>
+
+<!-- Log Sheet -->
+<div class="log-sheet-scrim hidden" id="logSheet">
+  <div onclick="document.getElementById('logSheet').classList.add('hidden')" style="position:absolute;inset:0;"></div>
+  <div class="log-sheet" onclick="event.stopPropagation()">
+    <div class="log-sheet__handle"></div>
+    <div class="log-sheet__eyebrow">Manuell loggen</div>
+    <div class="log-sheet__title">Was hast du gemacht?</div>
+    <div class="log-sheet__grid" id="logSportGrid"></div>
+    <div class="log-sheet__field">
+      <span class="log-sheet__field-label">Dauer</span>
+      <span class="log-sheet__field-value">42 min</span>
+    </div>
+    <div class="log-sheet__field">
+      <span class="log-sheet__field-label">Intensität</span>
+      <span class="log-sheet__field-value">Mittel</span>
+    </div>
+    <div class="log-sheet__field">
+      <span class="log-sheet__field-label">Notiz</span>
+      <span class="log-sheet__field-value" style="color:#B7AB91">Wie hat sich's angefühlt?</span>
+    </div>
+    <div class="log-sheet__actions">
+      <button class="btn btn--primary btn--md" onclick="document.getElementById('logSheet').classList.add('hidden');showToast('Session gespeichert')">Speichern</button>
+      <button class="btn btn--secondary btn--md" onclick="document.getElementById('logSheet').classList.add('hidden')">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/app.js"></script>
+<script src="js/today.js"></script>
+</body>
+</html>

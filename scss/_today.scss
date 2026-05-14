@@ -1,0 +1,115 @@
+@use 'variables' as *;
+
+// Hero ink card styles
+.hero-session-card {
+  margin: 0 20px 16px;
+  background: $ink;
+  color: $cream;
+  border-radius: $radius-xl;
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+
+  &__mark {
+    position: absolute;
+    right: -30px;
+    top: -20px;
+    opacity: 0.18;
+    pointer-events: none;
+    color: $clay;
+  }
+
+  &__content { position: relative; }
+
+  &__eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba($cream, 0.65);
+    margin-bottom: 6px;
+  }
+
+  &__title {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+    line-height: 1.1;
+  }
+
+  &__meta {
+    display: flex;
+    gap: 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba($cream, 0.75);
+    margin-bottom: 18px;
+
+    span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+}
+
+// Quick stats
+.stat-row {
+  padding: 14px 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+// Sports section
+.sports-section {
+  padding: 6px 20px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 6px 0 10px;
+
+  &__title {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  &__action {
+    background: transparent;
+    border: 0;
+    color: $cream700;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+}
+
+// Upcoming section
+.upcoming-section {
+  padding: 14px 20px 0;
+
+  &__header {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin-bottom: 10px;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}

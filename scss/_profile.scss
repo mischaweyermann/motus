@@ -1,0 +1,74 @@
+@use 'variables' as *;
+
+.profile-card {
+  margin: 0 20px 16px;
+  background: $cream50;
+  border: 1px solid rgba($ink, 0.06);
+  border-radius: $radius-xl;
+  padding: 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 12px rgba($ink, 0.05);
+
+  &__avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: $radius-full;
+    background: $clay;
+    color: $cream;
+    display: grid;
+    place-items: center;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    flex-shrink: 0;
+  }
+
+  &__info { flex: 1; min-width: 0; }
+  &__name { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+  &__sub  { font-size: 12px; font-weight: 600; color: $cream700; margin-top: 2px; }
+
+  &__edit {
+    background: $ink;
+    color: $cream;
+    border: 0;
+    padding: 10px 16px;
+    border-radius: $radius-full;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    flex-shrink: 0;
+    transition: opacity 0.15s;
+
+    &:active { opacity: 0.8; }
+  }
+}
+
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 0 20px;
+  margin-bottom: 24px;
+}
+
+.settings-section {
+  padding: 6px 20px;
+
+  &__label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $cream700;
+    margin: 12px 0 10px;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}

@@ -1,7 +1,11 @@
 @use 'variables' as *;
 @use 'base';
-@use 'header';
-@use 'week-grid';
-@use 'day-panel';
-@use 'modal';
-@use 'toast';
+@use 'components';
+@use 'nav';
+@use 'onboarding';
+@use 'today';
+@use 'plan';
+@use 'workout';
+@use 'complete';
+@use 'activity';
+@use 'profile';
