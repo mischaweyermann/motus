@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitPlan – Dein Trainingsplan</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <div>
+        <h1>FitPlan</h1>
+        <p>Dein persönlicher Trainingsplan</p>
+    </div>
+    <div class="header-actions">
+        <button onclick="clearAllConfirm()">Plan zurücksetzen</button>
+    </div>
+</header>
+
+<main>
+    <div class="section-title">Diese Woche</div>
+    <div class="week-grid" id="weekGrid"></div>
+    <div class="day-panel" id="dayPanel">
+        <div class="panel-header">
+            <div>
+                <div class="panel-title" id="panelTitle"></div>
+                <div class="panel-meta" id="panelMeta"></div>
+            </div>
+            <button class="btn-primary" onclick="openAddModal()">+ Übung</button>
+        </div>
+        <div class="exercise-list" id="exerciseList"></div>
+        <div class="copy-row" id="copyRow" style="display:none">
+            <span>Kopieren nach:</span>
+            <div id="copyButtons"></div>
+        </div>
+    </div>
+</main>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <div class="modal-head">
+            <h2 id="modalTitle">Übung hinzufügen</h2>
+            <button class="btn-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="form-group">
+            <label>Übungsname *</label>
+            <input type="text" id="exName" placeholder="z.B. Bankdrücken" autocomplete="off" />
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Sätze</label>
+                <input type="number" id="exSets" placeholder="4" min="1" max="99" />
+            </div>
+            <div class="form-group">
+                <label>Wdh.</label>
+                <input type="number" id="exReps" placeholder="10" min="1" max="999" />
+            </div>
+            <div class="form-group">
+                <label>Gewicht kg</label>
+                <input type="number" id="exWeight" placeholder="—" min="0" max="999" step="0.5" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Kategorie</label>
+            <select id="exCategory">
+                <option value="">— Keine —</option>
+                <option value="Brust">Brust</option>
+                <option value="Rücken">Rücken</option>
+                <option value="Schulter">Schulter</option>
+                <option value="Bizeps">Bizeps</option>
+                <option value="Trizeps">Trizeps</option>
+                <option value="Bauch">Bauch</option>
+                <option value="Beine">Beine</option>
+                <option value="Po">Po</option>
+                <option value="Cardio">Cardio</option>
+                <option value="Ganzkörper">Ganzkörper</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Notiz (optional)</label>
+            <input type="text" id="exNote" placeholder="z.B. langsame Exzentrik, Pause 90s …" />
+        </div>
+        <div class="form-actions">
+            <button class="btn-ghost" onclick="closeModal()">Abbrechen</button>
+            <button class="btn-save" onclick="saveExercise()">Speichern</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

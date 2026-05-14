@@ -1,0 +1,45 @@
+@use 'variables' as *;
+
+header {
+    padding: 18px 24px;
+    background: $surface;
+    border-bottom: 1px solid $border;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    h1 {
+        font-size: 1.35rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        background: linear-gradient(130deg, #b3aaff 0%, #ff7aab 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    p {
+        font-size: 0.75rem;
+        color: $text-muted;
+        margin-top: 2px;
+    }
+}
+
+.header-actions button {
+    background: $surface2;
+    border: 1px solid $border;
+    color: $text-muted;
+    padding: 7px 12px;
+    border-radius: $radius-sm;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+        color: $text;
+        border-color: $accent;
+    }
+}

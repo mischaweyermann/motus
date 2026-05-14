@@ -1,0 +1,84 @@
+@use 'variables' as *;
+
+main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 28px 16px 0;
+}
+
+.section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: $text-muted;
+    margin-bottom: 12px;
+}
+
+.week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-bottom: 28px;
+
+    @media (max-width: 560px) {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.day-card {
+    background: $surface;
+    border: 1.5px solid $border;
+    border-radius: $radius;
+    padding: 14px 6px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+    user-select: none;
+
+    &:hover {
+        border-color: $accent;
+        background: $surface2;
+    }
+
+    &.active {
+        border-color: $accent;
+        background: $accent-glow;
+    }
+
+    &.today .day-label {
+        color: $green;
+    }
+}
+
+.day-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: $text-muted;
+}
+
+.day-count {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin-top: 5px;
+    color: $text-muted;
+
+    &.filled { color: $accent; }
+}
+
+.day-dots {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    margin-top: 7px;
+    min-height: 6px;
+}
+
+.day-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: $accent;
+}
