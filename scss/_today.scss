@@ -2,11 +2,11 @@
 
 // Hero ink card styles
 .hero-session-card {
-  margin: 0 20px 16px;
+  margin: 0 20px;
   background: $ink;
   color: $cream;
   border-radius: $radius-xl;
-  padding: 22px;
+  padding: 20px;
   position: relative;
   overflow: hidden;
 
@@ -62,7 +62,7 @@
 
 // Quick stats
 .stat-row {
-  padding: 14px 20px;
+  padding: 16px 20px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
@@ -70,7 +70,7 @@
 
 // Sports section
 .sports-section {
-  padding: 6px 20px;
+  padding: 0 20px;
 }
 
 .section-header {
@@ -98,7 +98,7 @@
 
 // Upcoming section
 .upcoming-section {
-  padding: 14px 20px 0;
+  padding: 16px 20px 32px;
 
   &__header {
     font-size: 17px;

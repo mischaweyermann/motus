@@ -1,13 +1,25 @@
 {
   "name": "motus",
   "version": "1.0.0",
+  "private": true,
   "scripts": {
-    "start": "live-server --port=3000 --no-browser",
-    "sass:build": "sass scss/style.scss style.css",
-    "sass:watch": "sass --watch scss/style.scss style.css"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.105.4",
+    "next": "15",
+    "react": "^19",
+    "react-dom": "^19"
   },
   "devDependencies": {
-    "live-server": "^1.2.2",
-    "sass": "^1.77.0"
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "sass": "^1.77.0",
+    "typescript": "^5"
   }
 }
