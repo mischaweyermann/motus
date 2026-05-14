@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import StatusBar from '@/components/StatusBar'
 import { createClient } from '@/lib/supabase/client'
 
 const TOTAL = 60
@@ -67,7 +66,6 @@ export default function WorkoutPage() {
 
   return (
     <div className="page" style={{ paddingBottom: 32 }}>
-      <StatusBar />
 
       <div className="workout-header">
         <Link href="/today" className="workout-header__btn" aria-label="Zurück" style={{ transform: 'scaleX(-1)' }}>
