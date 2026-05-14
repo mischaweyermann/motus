@@ -2,21 +2,8 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import BottomNav from '@/components/BottomNav'
 
-const BARS = [
-  { label: 'Mo', height: 40, peak: false },
-  { label: 'Di', height: 60, peak: false },
-  { label: 'Mi', height: 80, peak: false },
-  { label: 'Do', height: 30, peak: false },
-  { label: 'Fr', height: 95, peak: true },
-  { label: 'Sa', height: 70, peak: false },
-  { label: 'So', height: 55, peak: false },
-]
-
 const TYPE_ICON: Record<string, string> = {
-  Gym:    'ink',
-  Tennis: 'ink',
-  Cycle:  'clay',
-  Run:    'success',
+  Gym: 'ink', Tennis: 'ink', Cycle: 'clay', Run: 'success', Sonstiges: 'ink',
 }
 
 function SessionIcon({ type }: { type: string }) {
@@ -26,6 +13,13 @@ function SessionIcon({ type }: { type: string }) {
   return <path d="M6 11h4M14 11h4M10 8v6M14 8v6M3 11h3M18 11h3"/>
 }
 
+function SourceBadge({ source }: { source: string }) {
+  if (source === 'strava') return (
+    <span className="source-badge source-badge--strava">Strava</span>
+  )
+  return null
+}
+
 export default async function ActivityPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -33,10 +27,10 @@ export default async function ActivityPage() {
 
   const { data: sessions } = await supabase
     .from('workout_sessions')
-    .select('id, name, type, duration, kcal, completed_at')
+    .select('id, name, type, duration, kcal, completed_at, source')
     .eq('user_id', user.id)
     .order('completed_at', { ascending: false })
-    .limit(5)
+    .limit(30)
 
   const { data: durationRows } = await supabase
     .from('workout_sessions')
@@ -46,6 +40,20 @@ export default async function ActivityPage() {
   const totalMins = (durationRows ?? []).reduce((s, r) => s + (r.duration ?? 0), 0)
   const hours = Math.floor(totalMins / 60)
   const mins = totalMins % 60
+
+  const now = new Date()
+  const DAY_LABELS = ['So','Mo','Di','Mi','Do','Fr','Sa']
+  const bars = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(now)
+    d.setDate(now.getDate() - (6 - i))
+    const label = DAY_LABELS[d.getDay()]
+    const dayStr = d.toISOString().slice(0, 10)
+    const dayMins = (sessions ?? [])
+      .filter(s => s.completed_at?.slice(0, 10) === dayStr)
+      .reduce((sum, s) => sum + (s.duration ?? 0), 0)
+    return { label, mins: dayMins }
+  })
+  const maxMins = Math.max(...bars.map(b => b.mins), 1)
 
   return (
     <div className="page">
@@ -74,9 +82,12 @@ export default async function ActivityPage() {
             </div>
           </div>
           <div className="training-card__bars">
-            {BARS.map(b => (
-              <div key={b.label} className="activity-bar">
-                <div className={`activity-bar__fill${b.peak ? ' peak' : ''}`} style={{ height: `${b.height}%` }}></div>
+            {bars.map((b, i) => (
+              <div key={i} className="activity-bar">
+                <div
+                  className={`activity-bar__fill${b.mins === maxMins && b.mins > 0 ? ' peak' : ''}`}
+                  style={{ height: `${b.mins > 0 ? Math.max(8, Math.round((b.mins / maxMins) * 100)) : 4}%` }}
+                />
                 <span className="activity-bar__label">{b.label}</span>
               </div>
             ))}
@@ -85,7 +96,7 @@ export default async function ActivityPage() {
       </div>
 
       <div className="history-section">
-        <div className="history-section__header">Letzte Sessions</div>
+        <div className="history-section__header">Alle Sessions</div>
         <div className="history-section__list">
           {sessions && sessions.length > 0 ? sessions.map(s => (
             <div key={s.id} className="list-row">
@@ -95,7 +106,10 @@ export default async function ActivityPage() {
                 </svg>
               </div>
               <div className="list-row__content">
-                <div className="list-row__title">{s.name}</div>
+                <div className="list-row__title" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {s.name}
+                  <SourceBadge source={s.source ?? 'manual'} />
+                </div>
                 <div className="list-row__sub">
                   {new Intl.DateTimeFormat('de', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(s.completed_at))}
                   {s.duration ? ` · ${s.duration} min` : ''}

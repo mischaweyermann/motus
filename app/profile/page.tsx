@@ -2,24 +2,22 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import BottomNav from '@/components/BottomNav'
 import LogoutButton from '@/components/LogoutButton'
+import IntegrationCard from '@/components/IntegrationCard'
 
 export default async function ProfilePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/')
 
-  const [{ data: profile }, { count: sessionCount }, { count: hoursRaw }] = await Promise.all([
+  const [{ data: profile }, { count: sessionCount }, { data: durationRows }, { data: integrationRows }] = await Promise.all([
     supabase.from('profiles').select('name, created_at').eq('id', user.id).single(),
     supabase.from('workout_sessions').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
-    supabase.from('workout_sessions').select('duration', { count: 'exact', head: false }).eq('user_id', user.id),
+    supabase.from('workout_sessions').select('duration').eq('user_id', user.id),
+    supabase.from('integrations').select('provider, connected_at').eq('user_id', user.id),
   ])
 
-  const { data: durationRows } = await supabase
-    .from('workout_sessions')
-    .select('duration')
-    .eq('user_id', user.id)
-
   const totalHours = Math.round((durationRows ?? []).reduce((s, r) => s + (r.duration ?? 0), 0) / 60)
+  const intMap = Object.fromEntries((integrationRows ?? []).map(r => [r.provider, r.connected_at as string]))
 
   const name = profile?.name ?? user.email ?? 'Motus User'
   const initials = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
@@ -33,12 +31,6 @@ export default async function ProfilePage() {
       icon: <><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></>,
       title: 'Benachrichtigungen',
       sub: 'Streak · Sessions · Erholung',
-    },
-    {
-      iconClass: 'clay',
-      icon: <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>,
-      title: 'Gesundheit',
-      sub: 'Apple Health · verbunden',
     },
     {
       iconClass: 'ink',
@@ -104,6 +96,12 @@ export default async function ProfilePage() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8C8270" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>
           </div>
         ))}
+
+        <div className="settings-section__label" style={{ marginTop: 24 }}>Integrationen</div>
+        <IntegrationCard provider="strava" connected={'strava' in intMap} connectedAt={intMap.strava ?? null} />
+        <IntegrationCard provider="garmin" connected={false} />
+        <IntegrationCard provider="apple_health" connected={false} />
+
         <LogoutButton />
       </div>
 

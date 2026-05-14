@@ -16,6 +16,24 @@ const LOG_SPORTS = [
   { id: 'other',  label: 'Sonstiges' },
 ]
 
+const SPORT_DEFAULT_NAMES: Record<string, string> = {
+  gym: 'Gym Session', tennis: 'Tennis', cycle: 'Radfahrt',
+  run: 'Lauf', ride: 'Ausfahrt', other: 'Training',
+}
+
+const SPORT_TYPE_MAP: Record<string, string> = {
+  gym: 'Gym', tennis: 'Tennis', cycle: 'Cycle',
+  run: 'Run', ride: 'Cycle', other: 'Sonstiges',
+}
+
+function estimateKcal(sport: string, mins: number, intensity: string): number {
+  const perMin: Record<string, number> = {
+    gym: 6, run: 10, cycle: 8, ride: 8, tennis: 7, other: 5,
+  }
+  const mult = { light: 0.8, medium: 1.0, intense: 1.3 }[intensity] ?? 1.0
+  return Math.round((perMin[sport] ?? 5) * mins * mult)
+}
+
 function SportIcon({ id }: { id: string }) {
   if (id === 'gym') return <path d="M6 11h4M14 11h4M10 8v6M14 8v6M3 11h3M18 11h3"/>
   if (id === 'tennis') return <><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.5-4-9s1.5-6.5 4-9z"/></>
@@ -29,6 +47,11 @@ export default function TodayPage() {
   const [firstName, setFirstName] = useState('Du')
   const [logOpen, setLogOpen] = useState(false)
   const [selectedSport, setSelectedSport] = useState<string | null>(null)
+  const [sessionName, setSessionName] = useState('')
+  const [duration, setDuration] = useState(30)
+  const [intensity, setIntensity] = useState<'light' | 'medium' | 'intense'>('medium')
+  const [notes, setNotes] = useState('')
+  const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState('')
   const [toastVisible, setToastVisible] = useState(false)
 
@@ -51,6 +74,43 @@ export default function TodayPage() {
     setToast(msg)
     setToastVisible(true)
     setTimeout(() => setToastVisible(false), 2400)
+  }
+
+  function openLog() {
+    setSelectedSport(null)
+    setSessionName('')
+    setDuration(30)
+    setIntensity('medium')
+    setNotes('')
+    setLogOpen(true)
+  }
+
+  function selectSport(id: string) {
+    setSelectedSport(id)
+    if (!sessionName) setSessionName(SPORT_DEFAULT_NAMES[id] ?? '')
+  }
+
+  async function handleSave() {
+    if (!selectedSport) return
+    setSaving(true)
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      const name = sessionName.trim() || SPORT_DEFAULT_NAMES[selectedSport] || 'Training'
+      await supabase.from('workout_sessions').insert({
+        user_id: user.id,
+        name,
+        type: SPORT_TYPE_MAP[selectedSport],
+        duration,
+        kcal: estimateKcal(selectedSport, duration, intensity),
+        notes: notes.trim() || null,
+        source: 'manual',
+        completed_at: new Date().toISOString(),
+      })
+    }
+    setSaving(false)
+    setLogOpen(false)
+    showToast('Session gespeichert')
   }
 
   return (
@@ -151,9 +211,9 @@ export default function TodayPage() {
           <div className="upcoming-section__header">Kommende Woche</div>
           <div className="upcoming-section__list">
             {[
-              { icon: 'tennis', iconClass: 'ink', title: 'Tennis · Court 4', sub: 'Mi · 18:00 · mit Jonas' },
-              { icon: 'cycle',  iconClass: 'clay', title: 'Endurance Ride', sub: 'Fr · 07:30 · 90 min · Z2' },
-              { icon: 'run',    iconClass: 'success', title: 'Long Run', sub: 'Sa · 09:00 · 14 km' },
+              { icon: 'tennis', iconClass: 'ink',     title: 'Tennis · Court 4',  sub: 'Mi · 18:00 · mit Jonas' },
+              { icon: 'cycle',  iconClass: 'clay',    title: 'Endurance Ride',    sub: 'Fr · 07:30 · 90 min · Z2' },
+              { icon: 'run',    iconClass: 'success', title: 'Long Run',          sub: 'Sa · 09:00 · 14 km' },
             ].map(item => (
               <div key={item.title} className="list-row">
                 <div className={`list-row__icon list-row__icon--${item.iconClass}`}>
@@ -172,7 +232,7 @@ export default function TodayPage() {
         </div>
       </div>
 
-      <BottomNav onFabClick={() => setLogOpen(true)} />
+      <BottomNav onFabClick={openLog} />
 
       {logOpen && (
         <div className="log-sheet-scrim" onClick={() => setLogOpen(false)}>
@@ -180,12 +240,13 @@ export default function TodayPage() {
             <div className="log-sheet__handle"></div>
             <div className="log-sheet__eyebrow">Manuell loggen</div>
             <div className="log-sheet__title">Was hast du gemacht?</div>
+
             <div className="log-sheet__grid">
               {LOG_SPORTS.map(s => (
                 <button
                   key={s.id}
                   className={`log-sheet__sport-btn${selectedSport === s.id ? ' selected' : ''}`}
-                  onClick={() => setSelectedSport(s.id)}
+                  onClick={() => selectSport(s.id)}
                 >
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <SportIcon id={s.id} />
@@ -194,21 +255,55 @@ export default function TodayPage() {
                 </button>
               ))}
             </div>
+
+            <input
+              className="log-sheet__input"
+              type="text"
+              placeholder="Name (z.B. Morgenrunde)"
+              value={sessionName}
+              onChange={e => setSessionName(e.target.value)}
+            />
+
             <div className="log-sheet__field">
               <span className="log-sheet__field-label">Dauer</span>
-              <span className="log-sheet__field-value">42 min</span>
+              <div className="log-sheet__duration-ctrl">
+                <button onClick={() => setDuration(d => Math.max(5, d - 5))}>−</button>
+                <span>{duration} min</span>
+                <button onClick={() => setDuration(d => d + 5)}>+</button>
+              </div>
             </div>
+
             <div className="log-sheet__field">
               <span className="log-sheet__field-label">Intensität</span>
-              <span className="log-sheet__field-value">Mittel</span>
+              <div className="log-sheet__intensity">
+                {(['light', 'medium', 'intense'] as const).map((v, i) => (
+                  <button key={v} className={intensity === v ? 'active' : ''} onClick={() => setIntensity(v)}>
+                    {['Leicht', 'Mittel', 'Intensiv'][i]}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="log-sheet__field">
-              <span className="log-sheet__field-label">Notiz</span>
-              <span className="log-sheet__field-value" style={{ color: '#B7AB91' }}>Wie hat sich's angefühlt?</span>
-            </div>
+
+            <textarea
+              className="log-sheet__input"
+              placeholder="Notiz (optional)"
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              rows={2}
+            />
+
             <div className="log-sheet__actions">
-              <button className="btn btn--primary btn--md" onClick={() => { setLogOpen(false); showToast('Session gespeichert') }}>Speichern</button>
-              <button className="btn btn--secondary btn--md" onClick={() => setLogOpen(false)}>Abbrechen</button>
+              <button
+                className="btn btn--primary btn--md"
+                onClick={handleSave}
+                disabled={saving || !selectedSport}
+                style={{ flex: 1 }}
+              >
+                {saving ? 'Speichern…' : 'Speichern'}
+              </button>
+              <button className="btn btn--secondary btn--md" onClick={() => setLogOpen(false)}>
+                Abbrechen
+              </button>
             </div>
           </div>
         </div>
