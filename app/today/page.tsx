@@ -65,6 +65,7 @@ export default function TodayPage() {
   const [dateStr, setDateStr] = useState('')
   const [firstName, setFirstName] = useState('Du')
   const [weekSessions, setWeekSessions] = useState<number | null>(null)
+  const [weeklyGoal, setWeeklyGoal] = useState<number>(4)
   const [todayPlan, setTodayPlan] = useState<PlannedWorkout | null | undefined>(undefined)
   const [upcomingPlans, setUpcomingPlans] = useState<PlannedWorkout[]>([])
   const [recentSports, setRecentSports] = useState<string[]>([])
@@ -98,7 +99,7 @@ export default function TodayPage() {
         { data: plans },
         { data: sessions },
       ] = await Promise.all([
-        supabase.from('profiles').select('name').eq('id', user.id).single(),
+        supabase.from('profiles').select('name, weekly_goal').eq('id', user.id).single(),
         supabase.from('workout_sessions')
           .select('*', { count: 'exact', head: true })
           .eq('user_id', user.id)
@@ -123,6 +124,7 @@ export default function TodayPage() {
       } else if (user.email) {
         setFirstName(user.email.split('@')[0])
       }
+      if (profile?.weekly_goal) setWeeklyGoal(profile.weekly_goal)
       setWeekSessions(weekCount ?? 0)
 
       if (plans !== null) {
@@ -285,11 +287,13 @@ export default function TodayPage() {
             </div>
             <div className="stat-tile__value">
               {weekSessions ?? '—'}
+              <span className="stat-tile__unit" style={{ color: '#C24B2E' }}>/</span>
+              <span style={{ fontSize: 42, fontWeight: 800 }}>{weeklyGoal}</span>
             </div>
-            <div className="stat-tile__sub">Sessions</div>
-            {weekSessions !== null && weekSessions > 0 && (
+            <div className="stat-tile__sub">Sessions on plan</div>
+            {weekSessions !== null && (
               <div className="stat-tile__bar">
-                <div className="stat-tile__bar-fill" style={{ width: `${Math.min(100, weekSessions * 20)}%` }}></div>
+                <div className="stat-tile__bar-fill" style={{ width: `${Math.min(100, Math.round((weekSessions / weeklyGoal) * 100))}%` }}></div>
               </div>
             )}
           </div>
