@@ -1,5 +1,35 @@
 @use 'variables' as *;
 
+// Filter chips row
+.activity-filter-row {
+  display: flex;
+  gap: 8px;
+  padding: 0 20px 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.activity-filter-chip {
+  flex-shrink: 0;
+  padding: 7px 16px;
+  border-radius: $radius-full;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: $font;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1.5px solid rgba($ink, 0.14);
+  background: transparent;
+  color: $ink;
+
+  &.active {
+    background: $ink;
+    color: $cream;
+    border-color: transparent;
+  }
+}
+
 // Training time card
 .training-card {
   background: $cream50;
@@ -62,13 +92,12 @@
   &__fill {
     width: 100%;
     border-radius: 6px;
-    background: $ink;
-    opacity: 0.85;
+    background: rgba($ink, 0.25);
+    transition: height 0.3s ease;
 
-    &.peak {
-      background: $clay;
-      opacity: 1;
-    }
+    &.peak    { background: $clay; }
+    &.current { background: $ink; opacity: 0.9; }
+    &.peak.current { background: $clay; opacity: 1; }
   }
 
   &__label {
