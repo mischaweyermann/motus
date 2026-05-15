@@ -427,6 +427,30 @@
     &::placeholder { color: $cream500; font-weight: 500; }
   }
 
+  &__select {
+    background: transparent;
+    border: none;
+    font-size: 14px;
+    font-weight: 700;
+    color: $ink;
+    font-family: $font;
+    cursor: pointer;
+    outline: none;
+    text-align: right;
+  }
+
+  &__time-input {
+    background: transparent;
+    border: none;
+    font-size: 14px;
+    font-weight: 700;
+    color: $ink;
+    font-family: $font;
+    outline: none;
+    text-align: right;
+    cursor: pointer;
+  }
+
   &__duration-ctrl {
     display: flex;
     align-items: center;

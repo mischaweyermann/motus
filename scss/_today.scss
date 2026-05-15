@@ -96,6 +96,35 @@
   }
 }
 
+// Empty hero card (no planned workout)
+.empty-hero-card {
+  margin: 0 20px;
+  background: $ink;
+  color: $cream;
+  border-radius: $radius-xl;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+
+  &__icon { opacity: 0.5; }
+
+  &__text {
+    font-size: 16px;
+    font-weight: 700;
+    color: rgba($cream, 0.7);
+  }
+}
+
+// Inline empty state (sports, upcoming)
+.empty-state-inline {
+  padding: 16px 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $cream600;
+}
+
 // Upcoming section
 .upcoming-section {
   padding: 16px 20px 32px;
