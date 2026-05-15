@@ -53,27 +53,23 @@ export default function ProfilePage() {
       setEmail(user.email ?? '')
       setUserId(user.id)
 
-      const [{ data: profile }, { count }, { data: durationRows }, { data: integrationRows }] =
+      const [{ data: profile }, extResult, { count }, { data: durationRows }, { data: integrationRows }] =
         await Promise.all([
-          supabase.from('profiles')
-            .select('name, created_at, avatar_color, weekly_goal')
-            .eq('id', user.id)
-            .single(),
-          supabase.from('workout_sessions')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', user.id),
-          supabase.from('workout_sessions')
-            .select('duration')
-            .eq('user_id', user.id),
-          supabase.from('integrations')
-            .select('provider, connected_at')
-            .eq('user_id', user.id),
+          supabase.from('profiles').select('name, created_at').eq('id', user.id).single(),
+          supabase.from('profiles').select('avatar_color, weekly_goal').eq('id', user.id).single(),
+          supabase.from('workout_sessions').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
+          supabase.from('workout_sessions').select('duration').eq('user_id', user.id),
+          supabase.from('integrations').select('provider, connected_at').eq('user_id', user.id),
         ])
 
       const resolvedName = profile?.name?.trim() ? profile.name : emailPrefix(user.email)
       setName(resolvedName)
-      setAvatarColor(profile?.avatar_color ?? '#1F1F1F')
-      setWeeklyGoal(profile?.weekly_goal ?? 4)
+
+      // extResult only available after schema_v4.sql has been run
+      if (!extResult.error && extResult.data) {
+        setAvatarColor(extResult.data.avatar_color ?? '#1F1F1F')
+        setWeeklyGoal(extResult.data.weekly_goal ?? 4)
+      }
 
       if (profile?.created_at) {
         setSince(new Intl.DateTimeFormat('de', { month: 'long', year: 'numeric' })
@@ -107,11 +103,16 @@ export default function ProfilePage() {
     setSaving(true)
     const supabase = createClient()
     const newName = editName.trim() || emailPrefix(email)
-    const { error } = await supabase.from('profiles').update({
-      name: newName,
-      avatar_color: editColor,
-      weekly_goal: editGoal,
-    }).eq('id', userId)
+
+    // Name update always works (column exists from schema.sql)
+    const { error } = await supabase.from('profiles')
+      .update({ name: newName })
+      .eq('id', userId)
+
+    // Avatar + goal only work after schema_v4.sql — fail silently if not yet run
+    await supabase.from('profiles')
+      .update({ avatar_color: editColor, weekly_goal: editGoal })
+      .eq('id', userId)
 
     if (!error) {
       setName(newName)
