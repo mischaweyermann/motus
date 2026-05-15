@@ -25,7 +25,7 @@ type Session = {
 
 function SessionIcon({ type }: { type: string }) {
   if (type === 'Cycle') return <><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17l4-9h3l3 6M10 8l-1-3h3"/></>
-  if (type === 'Tennis') return <><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.5-4-9s1.5-6.5 4-9z"/></>
+  if (type === 'Tennis') return <><circle cx="9" cy="5" r="2"/><path d="M9 7v6M9 13l-2 7M9 13l3 6M9.5 9l5.5-3.5"/><circle cx="17" cy="4" r="2.5"/></>
   if (type === 'Run') return <><circle cx="14" cy="4.5" r="2"/><path d="M9 21l1.5-6L7 12.5l2-6 3 2.5 3.5-1M14 21l-2-6 3-3.5"/></>
   return <path d="M6 11h4M14 11h4M10 8v6M14 8v6M3 11h3M18 11h3"/>
 }
