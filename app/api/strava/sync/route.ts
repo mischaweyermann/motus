@@ -72,18 +72,51 @@ export async function POST() {
 
   const existingIds = new Set((existing ?? []).map((r: { external_id: string }) => r.external_id))
 
-  const newRows = activities
-    .filter((a: { id: number }) => !existingIds.has(String(a.id)))
-    .map((a: { id: number; name: string; sport_type?: string; type?: string; moving_time?: number; elapsed_time?: number; calories?: number; start_date: string }) => ({
+  type StravaActivity = {
+    id: number; name: string; sport_type?: string; type?: string
+    moving_time?: number; elapsed_time?: number
+    calories?: number; kilojoules?: number; start_date: string
+  }
+
+  const newActivities: StravaActivity[] = activities.filter(
+    (a: StravaActivity) => !existingIds.has(String(a.id))
+  )
+
+  async function resolveKcal(a: StravaActivity): Promise<number | null> {
+    // List endpoint already has calories for some activity types
+    if (a.calories && a.calories > 0) return Math.round(a.calories)
+
+    // Fetch detail endpoint for accurate calories
+    try {
+      const detailRes = await fetch(
+        `https://www.strava.com/api/v3/activities/${a.id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      if (detailRes.ok) {
+        const detail = await detailRes.json()
+        if (detail.calories && detail.calories > 0) return Math.round(detail.calories)
+        // Strava kilojoules (cycling power) ≈ kcal due to efficiency/unit factors
+        if (detail.kilojoules && detail.kilojoules > 0) return Math.round(detail.kilojoules)
+      }
+    } catch { /* ignore, save without kcal */ }
+
+    return null
+  }
+
+  // Fetch details sequentially to stay within Strava rate limits
+  const newRows = []
+  for (const a of newActivities) {
+    newRows.push({
       user_id: user.id,
       name: a.name,
       type: TYPE_MAP[a.sport_type ?? a.type ?? ''] ?? 'Sonstiges',
       duration: Math.round((a.moving_time ?? a.elapsed_time ?? 0) / 60),
-      kcal: a.calories ? Math.round(a.calories) : null,
+      kcal: await resolveKcal(a),
       source: 'strava',
       external_id: String(a.id),
       completed_at: a.start_date,
-    }))
+    })
+  }
 
   if (newRows.length > 0) {
     await supabase.from('workout_sessions').insert(newRows)
