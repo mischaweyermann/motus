@@ -118,7 +118,11 @@ export default function TodayPage() {
           .limit(20),
       ])
 
-      if (profile?.name) setFirstName(profile.name.split(' ')[0])
+      if (profile?.name) {
+        setFirstName(profile.name.split(' ')[0])
+      } else if (user.email) {
+        setFirstName(user.email.split('@')[0])
+      }
       setWeekSessions(weekCount ?? 0)
 
       if (plans !== null) {

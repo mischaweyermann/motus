@@ -1,44 +1,91 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+'use client'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import BottomNav from '@/components/BottomNav'
 import LogoutButton from '@/components/LogoutButton'
 import IntegrationCard from '@/components/IntegrationCard'
+import { createClient } from '@/lib/supabase/client'
 
-export default async function ProfilePage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/')
+function emailPrefix(email: string | undefined): string {
+  return email?.split('@')[0] ?? 'Motus User'
+}
 
-  const [{ data: profile }, { count: sessionCount }, { data: durationRows }, { data: integrationRows }] = await Promise.all([
-    supabase.from('profiles').select('name, created_at').eq('id', user.id).single(),
-    supabase.from('workout_sessions').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
-    supabase.from('workout_sessions').select('duration').eq('user_id', user.id),
-    supabase.from('integrations').select('provider, connected_at').eq('user_id', user.id),
-  ])
+export default function ProfilePage() {
+  const router = useRouter()
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [since, setSince] = useState('')
+  const [sessionCount, setSessionCount] = useState(0)
+  const [totalHours, setTotalHours] = useState(0)
+  const [intMap, setIntMap] = useState<Record<string, string>>({})
+  const [loaded, setLoaded] = useState(false)
 
-  const totalHours = Math.round((durationRows ?? []).reduce((s, r) => s + (r.duration ?? 0), 0) / 60)
-  const intMap = Object.fromEntries((integrationRows ?? []).map(r => [r.provider, r.connected_at as string]))
+  const [editOpen, setEditOpen] = useState(false)
+  const [editName, setEditName] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [toast, setToast] = useState('')
+  const [toastVisible, setToastVisible] = useState(false)
 
-  const name = profile?.name ?? user.email ?? 'Motus User'
-  const initials = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-  const since = profile?.created_at
-    ? new Intl.DateTimeFormat('de', { month: 'long', year: 'numeric' }).format(new Date(profile.created_at))
-    : ''
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) { router.push('/'); return }
 
-  const SETTINGS = [
-    {
-      iconClass: 'ink',
-      icon: <><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></>,
-      title: 'Benachrichtigungen',
-      sub: 'Streak · Sessions · Erholung',
-    },
-    {
-      iconClass: 'ink',
-      icon: <><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 9h18M8 3v4M16 3v4"/></>,
-      title: 'Plan-Ziele',
-      sub: '4 Sessions / Woche',
-    },
-  ]
+      setEmail(user.email ?? '')
+
+      const [{ data: profile }, { count }, { data: durationRows }, { data: integrationRows }] = await Promise.all([
+        supabase.from('profiles').select('name, created_at').eq('id', user.id).single(),
+        supabase.from('workout_sessions').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
+        supabase.from('workout_sessions').select('duration').eq('user_id', user.id),
+        supabase.from('integrations').select('provider, connected_at').eq('user_id', user.id),
+      ])
+
+      const resolvedName = profile?.name?.trim()
+        ? profile.name
+        : emailPrefix(user.email)
+      setName(resolvedName)
+
+      if (profile?.created_at) {
+        setSince(new Intl.DateTimeFormat('de', { month: 'long', year: 'numeric' }).format(new Date(profile.created_at)))
+      }
+      setSessionCount(count ?? 0)
+      setTotalHours(Math.round((durationRows ?? []).reduce((s, r) => s + (r.duration ?? 0), 0) / 60))
+      setIntMap(Object.fromEntries((integrationRows ?? []).map(r => [r.provider, r.connected_at as string])))
+      setLoaded(true)
+    })
+  }, [router])
+
+  function showToast(msg: string) {
+    setToast(msg)
+    setToastVisible(true)
+    setTimeout(() => setToastVisible(false), 2400)
+  }
+
+  function openEdit() {
+    setEditName(name)
+    setEditOpen(true)
+  }
+
+  async function handleSave() {
+    setSaving(true)
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      const newName = editName.trim() || emailPrefix(user.email)
+      await supabase.from('profiles').update({ name: newName }).eq('id', user.id)
+      setName(newName)
+    }
+    setSaving(false)
+    setEditOpen(false)
+    showToast('Profil gespeichert')
+  }
+
+  const initials = name
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
 
   return (
     <div className="page">
@@ -46,7 +93,7 @@ export default async function ProfilePage() {
       <div className="app-header">
         <div className="app-header__text">
           <div className="app-header__eyebrow">Profil</div>
-          <div className="app-header__title">Du</div>
+          <div className="app-header__title">{loaded ? name.split(' ')[0] : '…'}</div>
         </div>
         <button className="app-header__action" aria-label="Einstellungen">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F1F1F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -60,15 +107,19 @@ export default async function ProfilePage() {
         <div className="profile-card__avatar">{initials}</div>
         <div className="profile-card__info">
           <div className="profile-card__name">{name}</div>
-          <div className="profile-card__sub">seit {since} · {sessionCount ?? 0} Sessions</div>
+          <div className="profile-card__sub">
+            {email && <span style={{ opacity: 0.6 }}>{email}</span>}
+            {since && <span> · seit {since}</span>}
+            {' · '}{sessionCount} Sessions
+          </div>
         </div>
-        <button className="profile-card__edit">Bearbeiten</button>
+        <button className="profile-card__edit" onClick={openEdit}>Bearbeiten</button>
       </div>
 
       <div className="profile-stats">
         <div className="stat-tile stat-tile--cream">
           <div className="stat-tile__eyebrow">Sessions</div>
-          <div className="stat-tile__value" style={{ fontSize: 32 }}>{sessionCount ?? 0}</div>
+          <div className="stat-tile__value" style={{ fontSize: 32 }}>{sessionCount}</div>
         </div>
         <div className="stat-tile stat-tile--cream">
           <div className="stat-tile__eyebrow">Stunden</div>
@@ -81,23 +132,7 @@ export default async function ProfilePage() {
       </div>
 
       <div className="settings-section">
-        <div className="settings-section__label">Einstellungen</div>
-        {SETTINGS.map(row => (
-          <div key={row.title} className="list-row">
-            <div className={`list-row__icon list-row__icon--${row.iconClass}`}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FAF7F1" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                {row.icon}
-              </svg>
-            </div>
-            <div className="list-row__content">
-              <div className="list-row__title">{row.title}</div>
-              <div className="list-row__sub">{row.sub}</div>
-            </div>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8C8270" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-          </div>
-        ))}
-
-        <div className="settings-section__label" style={{ marginTop: 24 }}>Integrationen</div>
+        <div className="settings-section__label">Integrationen</div>
         <IntegrationCard provider="strava" connected={'strava' in intMap} connectedAt={intMap.strava ?? null} />
         <IntegrationCard provider="garmin" connected={false} />
         <IntegrationCard provider="apple_health" connected={false} />
@@ -106,6 +141,46 @@ export default async function ProfilePage() {
       </div>
 
       <BottomNav />
+
+      {/* Edit sheet */}
+      {editOpen && (
+        <div className="log-sheet-scrim" onClick={() => setEditOpen(false)}>
+          <div className="log-sheet" onClick={e => e.stopPropagation()}>
+            <div className="log-sheet__handle"></div>
+            <div className="log-sheet__eyebrow">Profil bearbeiten</div>
+            <div className="log-sheet__title">Dein Name</div>
+
+            <input
+              className="log-sheet__input"
+              type="text"
+              placeholder={emailPrefix(email)}
+              value={editName}
+              onChange={e => setEditName(e.target.value)}
+              autoFocus
+            />
+
+            <div style={{ fontSize: 13, color: '#8C8270', fontWeight: 500, marginBottom: 16, paddingLeft: 2 }}>
+              Leer lassen um den Benutzernamen ({emailPrefix(email)}) zu verwenden.
+            </div>
+
+            <div className="log-sheet__actions">
+              <button
+                className="btn btn--primary btn--md"
+                onClick={handleSave}
+                disabled={saving}
+                style={{ flex: 1 }}
+              >
+                {saving ? 'Speichern…' : 'Speichern'}
+              </button>
+              <button className="btn btn--secondary btn--md" onClick={() => setEditOpen(false)}>
+                Abbrechen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className={`toast${toastVisible ? ' show' : ''}`}>{toast}</div>
     </div>
   )
 }
