@@ -31,7 +31,6 @@ export default function ProfilePage() {
   const [sessionCount, setSessionCount] = useState(0)
   const [totalHours, setTotalHours]   = useState(0)
   const [intMap, setIntMap]           = useState<Record<string, string>>({})
-  const [userId, setUserId]           = useState('')
   const [loaded, setLoaded]           = useState(false)
 
   // Settings sheet state
@@ -51,7 +50,6 @@ export default function ProfilePage() {
       if (!user) { router.push('/'); return }
 
       setEmail(user.email ?? '')
-      setUserId(user.id)
 
       const [{ data: profile }, extResult, { count }, { data: durationRows }, { data: integrationRows }] =
         await Promise.all([
@@ -102,17 +100,23 @@ export default function ProfilePage() {
   async function handleSave() {
     setSaving(true)
     const supabase = createClient()
-    const newName = editName.trim() || emailPrefix(email)
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { setSaving(false); return }
 
-    // Name update always works (column exists from schema.sql)
-    const { error } = await supabase.from('profiles')
-      .update({ name: newName })
-      .eq('id', userId)
+    const newName = editName.trim() || emailPrefix(user.email)
+
+    // Upsert ensures a row always exists, even if the trigger never ran
+    const { error } = await supabase.from('profiles').upsert({
+      id: user.id,
+      name: newName,
+    })
 
     // Avatar + goal only work after schema_v4.sql — fail silently if not yet run
-    await supabase.from('profiles')
-      .update({ avatar_color: editColor, weekly_goal: editGoal })
-      .eq('id', userId)
+    await supabase.from('profiles').upsert({
+      id: user.id,
+      avatar_color: editColor,
+      weekly_goal: editGoal,
+    })
 
     if (!error) {
       setName(newName)
