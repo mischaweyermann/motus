@@ -1,9 +1,10 @@
 @use 'variables' as *;
 
-// Day strip
-.day-strip {
+// ── Trainer day strip ─────────────────────────────────────────────
+
+.trainer-day-strip {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   overflow-x: auto;
   padding: 0 20px 16px;
   scrollbar-width: none;
@@ -11,145 +12,673 @@
   &::-webkit-scrollbar { display: none; }
 }
 
-.day-pill {
-  flex: none;
-  width: 60px;
-  padding: 12px 0;
-  border-radius: 16px;
+.trainer-day-pill {
+  position: relative;
+  flex: 1;
+  min-width: 40px;
+  padding: 10px 4px;
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   cursor: pointer;
-  border: none;
-  font-family: inherit;
-  transition: all 0.15s;
+  background: $cream50;
+  border: 1.5px solid rgba($ink, 0.06);
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
 
-  &--default {
-    background: $cream50;
-    color: $ink;
-    border: 1px solid rgba($ink, 0.06);
+  &:hover:not(&--active) {
+    background: $cream100;
+    border-color: rgba($ink, 0.14);
   }
 
-  &--today {
+  &--active {
     background: $ink;
-    color: $cream;
+    border-color: $ink;
+
+    .trainer-day-pill__label { color: rgba($cream, 0.65); }
+    .trainer-day-pill__date  { color: $cream; }
   }
 
-  &--done {
-    background: $cream50;
-    color: $ink;
-    border: 1px solid rgba($ink, 0.06);
+  // Warning border overrides active border
+  &--has-warning {
+    border-color: $clay;
+    border-width: 1.5px;
+  }
+  &--active#{&}--has-warning {
+    border-color: $clay;
   }
 
-  &__day {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    opacity: 0.65;
+  // Info border
+  &--has-info:not(&--has-warning) {
+    border-color: $cream600;
+    border-width: 1.5px;
+  }
+  &--active#{&}--has-info:not(&--has-warning) {
+    border-color: $cream600;
   }
 
-  &__date {
-    font-size: 20px;
-    font-weight: 800;
-    font-feature-settings: "tnum";
-    letter-spacing: -0.02em;
+  &__dots {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+    min-height: 7px;
   }
 
   &__dot {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     border-radius: $radius-full;
-  }
-}
-
-// Today's session card within plan
-.plan-session-card {
-  background: $cream50;
-  border: 1px solid rgba($ink, 0.06);
-  border-radius: $radius-xl;
-  padding: 18px;
-  box-shadow: 0 4px 12px rgba($ink, 0.05);
-
-  &__top {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 14px;
-  }
-
-  &__icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-    background: $clay;
-    color: $cream;
-    display: grid;
-    place-items: center;
+    display: block;
     flex-shrink: 0;
   }
 
-  &__info { flex: 1; }
-  &__title { font-size: 16px; font-weight: 800; letter-spacing: -0.005em; }
-  &__sub   { font-size: 12px; font-weight: 600; color: $cream700; margin-top: 2px; }
+  &__label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: $cream700;
+  }
 
-  &__mini-stats {
-    padding-top: 14px;
-    border-top: 1px solid rgba($ink, 0.08);
+  &__date {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: $ink;
+    font-feature-settings: "tnum";
+    line-height: 1;
+  }
+
+  // Overlapping badge top-right
+  &__alert {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 15px;
+    height: 15px;
+    border-radius: $radius-full;
+    border: 2px solid $cream;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    place-items: center;
+    font-family: $font;
+    font-size: 8px;
+    font-weight: 800;
+    color: $cream;
+    line-height: 1;
+    pointer-events: none;
+
+    &--warning { background: $clay; }
+    &--info    { background: $cream600; }
   }
 }
 
-.mini-stat-inline {
+// ── Tabs ──────────────────────────────────────────────────────────
+
+.trainer-tabs {
+  display: flex;
+  gap: 24px;
+  padding: 0 20px;
+  border-bottom: 1px solid rgba($ink, 0.08);
+  margin-bottom: 20px;
+}
+
+.trainer-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  font-family: $font;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  color: $cream600;
+  padding: 0 0 14px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+
+  &--active {
+    color: $ink;
+    border-bottom-color: $clay;
+  }
+}
+
+// ── Body wrapper ──────────────────────────────────────────────────
+
+.trainer-body {
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+// ── Edit panel ────────────────────────────────────────────────────
+
+.trainer-edit-panel {
+  padding: 18px;
+
+  &__title {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+  }
+
+  &__hint {
+    font-size: 12px;
+    color: $cream700;
+    font-weight: 500;
+    margin-bottom: 14px;
+  }
+
+  &__tip {
+    font-size: 12px;
+    color: $cream700;
+    font-weight: 500;
+    margin-top: 12px;
+    line-height: 1.5;
+    border-top: 1px solid rgba($ink, 0.06);
+    padding-top: 12px;
+  }
+}
+
+.trainer-edit-row {
+  padding: 10px 0;
+  border-top: 1px solid rgba($ink, 0.06);
+
   &__label {
+    font-size: 13px;
+    font-weight: 700;
+    color: $cream700;
+    margin-bottom: 8px;
+  }
+
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}
+
+.trainer-activity-chip {
+  font-family: $font;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: $radius-full;
+  background: transparent;
+  border: 1.5px solid rgba($ink, 0.15);
+  color: $cream700;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:active { opacity: 0.8; }
+}
+
+// ── Day cards ─────────────────────────────────────────────────────
+
+.trainer-day-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.trainer-card {
+  padding: 0;
+  overflow: hidden;
+  border-radius: $radius-xl;
+
+  &__header {
+    padding: 16px 18px;
+    border-left: 4px solid $clay;
+  }
+
+  &__eyebrow {
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: $cream700;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
   }
 
-  &__val {
-    font-size: 18px;
+  &__title {
+    font-size: 22px;
     font-weight: 800;
     letter-spacing: -0.015em;
-    font-feature-settings: "tnum";
+    color: $ink;
   }
-}
 
-// Empty day state in plan
-.plan-empty-day {
-  padding: 20px 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
-
-  &__text {
+  &__note {
+    padding: 16px 18px;
     font-size: 14px;
-    font-weight: 600;
-    color: $cream600;
+    font-weight: 500;
+    color: $cream700;
+    line-height: 1.55;
   }
 }
 
-// This-week list
-.week-section {
-  padding: 0 20px 32px;
+// ── Exercises ─────────────────────────────────────────────────────
 
-  &__header {
-    font-size: 17px;
-    font-weight: 800;
-    letter-spacing: -0.01em;
+.trainer-exercises {
+  padding: 2px 18px 16px;
+}
+
+.trainer-exercise {
+  padding: 12px 0;
+  border-top: 1px solid rgba($ink, 0.06);
+
+  &__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 10px;
   }
 
-  &__list {
+  &__name {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.005em;
+    color: $ink;
+  }
+
+  &__meta {
+    font-size: 12px;
+    font-weight: 600;
+    color: $cream700;
+    font-feature-settings: "tnum";
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+
+  &__bottom {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+}
+
+.trainer-set-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-full;
+  background: transparent;
+  border: 1.5px solid rgba($ink, 0.2);
+  font-family: $font;
+  font-size: 12px;
+  font-weight: 700;
+  color: $cream700;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 0.12s;
+  flex-shrink: 0;
+
+  &--done { color: $cream; }
+  &:active { transform: scale(0.88); }
+}
+
+.trainer-weight-input {
+  margin-left: auto;
+  background: $cream100;
+  border: 1px solid rgba($ink, 0.10);
+  border-radius: 10px;
+  color: $ink;
+  font-family: $font;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 10px;
+  width: 60px;
+  text-align: center;
+
+  &::placeholder { color: $cream500; }
+  &:focus { outline: none; border-color: $clay; }
+}
+
+// ── Week navigation ───────────────────────────────────────────────
+
+.trainer-week-nav {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 4px;
+}
+
+// ── Empty state ───────────────────────────────────────────────────
+
+.trainer-empty {
+  text-align: center;
+  color: $cream700;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 36px 0;
+}
+
+// ── Run hero ──────────────────────────────────────────────────────
+
+.trainer-run-hero {
+  padding: 20px;
+
+  &__eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $cream700;
+    margin-bottom: 4px;
+  }
+
+  &__value {
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: $clay;
+    font-feature-settings: "tnum";
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+
+  &__bar {
+    height: 10px;
+    border-radius: $radius-full;
+    background: rgba($ink, 0.08);
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+
+  &__bar-fill {
+    height: 100%;
+    border-radius: $radius-full;
+    background: linear-gradient(90deg, $clay 0%, #C4D82E 100%);
+    transition: width 0.5s ease;
+  }
+
+  &__range {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 600;
+    color: $cream700;
+  }
+}
+
+// ── Run tip ───────────────────────────────────────────────────────
+
+.trainer-run-tip {
+  font-size: 13px;
+  font-weight: 500;
+  color: $cream700;
+  line-height: 1.55;
+}
+
+// ── Run form ──────────────────────────────────────────────────────
+
+.trainer-run-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &__input {
+    display: block;
+    width: 100%;
+    background: $cream50;
+    border: 1px solid rgba($ink, 0.10);
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-family: $font;
+    font-size: 15px;
+    font-weight: 600;
+    color: $ink;
+    box-sizing: border-box;
+
+    &:focus { outline: none; border-color: $clay; }
+    &::placeholder { color: $cream500; font-weight: 500; }
+  }
+
+  &__row {
+    display: flex;
     gap: 8px;
   }
+
+  &__km   { flex: 0 0 80px; text-align: center; }
+  &__type { flex: 1; }
+}
+
+// ── Run log ───────────────────────────────────────────────────────
+
+.trainer-run-log {
+  display: flex;
+  flex-direction: column;
+}
+
+.trainer-run-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-top: 1px solid rgba($ink, 0.06);
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__date {
+    font-size: 13px;
+    font-weight: 600;
+    color: $cream700;
+    font-feature-settings: "tnum";
+  }
+
+  &__type {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: $radius-full;
+
+    &--long  { background: rgba($clay, 0.12); color: $clay; }
+    &--tempo { background: rgba($ink, 0.08);  color: $ink; }
+    &--easy  { background: $success-bg; color: $success; }
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__dist {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    font-feature-settings: "tnum";
+    color: $ink;
+  }
+
+  &__del {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: $cream600;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    transition: color 0.15s;
+
+    &:active { color: $clay; }
+  }
+}
+
+// ── Week overview ─────────────────────────────────────────────────
+
+.week-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.week-day-row {
+  background: $cream50;
+  border: 1px solid rgba($ink, 0.06);
+  border-radius: $radius-lg;
+  padding: 14px 16px;
+  display: grid;
+  grid-template-columns: 90px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:active { opacity: 0.75; }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+
+  &__name {
+    font-size: 13px;
+    font-weight: 700;
+    color: $ink;
+    letter-spacing: -0.005em;
+  }
+
+  &__date {
+    font-size: 11px;
+    font-weight: 600;
+    color: $cream700;
+    font-feature-settings: "tnum";
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  &__chip {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: $radius-full;
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+
+  &__rest {
+    font-size: 12px;
+    font-weight: 600;
+    color: $cream600;
+  }
+
+  &__badges {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+
+  &__badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: $radius-full;
+
+    &--warn {
+      background: rgba($clay, 0.1);
+      color: $clay;
+    }
+
+    &--info {
+      background: rgba($cream600, 0.12);
+      color: $cream700;
+    }
+  }
+
+  &__arrow {
+    flex-shrink: 0;
+    opacity: 0.6;
+  }
+}
+
+// ── Warning blocks ────────────────────────────────────────────────
+
+.warning-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.warning-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border-radius: $radius;
+  padding: 12px 14px;
+
+  &--warning {
+    background: rgba($clay, 0.07);
+    border: 1px solid rgba($clay, 0.2);
+
+    .warning-item__icon { color: $clay; }
+  }
+
+  &--info {
+    background: rgba($cream600, 0.07);
+    border: 1px solid rgba($cream600, 0.18);
+
+    .warning-item__icon { color: $cream700; }
+  }
+
+  &__icon {
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    line-height: 1;
+  }
+
+  &__text {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: $ink;
+  }
+}
+
+// ── Back button ───────────────────────────────────────────────────
+
+.trainer-back-btn {
+  background: none;
+  border: none;
+  font-family: $font;
+  font-size: 13px;
+  font-weight: 700;
+  color: $cream700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  margin-bottom: 4px;
+  transition: color 0.15s;
+
+  &:active { color: $ink; }
+}
+
+// ── Section label ─────────────────────────────────────────────────
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: $cream700;
+  margin-bottom: 8px;
 }
