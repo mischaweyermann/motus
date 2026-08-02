@@ -682,3 +682,186 @@
   color: $cream700;
   margin-bottom: 8px;
 }
+
+// ── Card header with edit button ──────────────────────────────────
+
+.trainer-card__header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.trainer-edit-exercises-btn {
+  flex-shrink: 0;
+  font-family: $font;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: $cream700;
+  background: rgba($ink, 0.05);
+  border: 1px solid rgba($ink, 0.10);
+  border-radius: $radius-full;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  margin-top: 2px;
+
+  &:active {
+    background: rgba($ink, 0.10);
+    color: $ink;
+  }
+}
+
+// ── Exercise editor sheet ─────────────────────────────────────────
+
+.ex-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.ex-editor-list {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.ex-editor-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-top: 1px solid rgba($ink, 0.06);
+
+  &__name {
+    font-size: 14px;
+    font-weight: 600;
+    color: $ink;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  &__x {
+    font-size: 12px;
+    font-weight: 700;
+    color: $cream600;
+  }
+
+  &__del {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: $cream600;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    transition: color 0.15s;
+
+    &:active { color: $clay; }
+  }
+}
+
+.ex-editor-input {
+  background: $cream100;
+  border: 1px solid rgba($ink, 0.10);
+  border-radius: 8px;
+  color: $ink;
+  font-family: $font;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  padding: 5px 6px;
+
+  &:focus { outline: none; border-color: $clay; }
+
+  &--sets { width: 38px; }
+  &--reps { width: 60px; }
+}
+
+.ex-editor-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $cream700;
+  margin-bottom: 10px;
+}
+
+.ex-editor-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 20px;
+}
+
+.ex-editor-chip {
+  font-family: $font;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: $radius-full;
+  background: $cream50;
+  border: 1.5px solid rgba($ink, 0.12);
+  color: $cream700;
+  cursor: pointer;
+  transition: all 0.12s;
+
+  &:active {
+    background: $cream100;
+    color: $ink;
+    border-color: rgba($ink, 0.25);
+  }
+}
+
+.ex-editor-custom {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
+
+  &__input {
+    flex: 1;
+    background: $cream50;
+    border: 1px solid rgba($ink, 0.10);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-family: $font;
+    font-size: 14px;
+    font-weight: 500;
+    color: $ink;
+
+    &::placeholder { color: $cream500; }
+    &:focus { outline: none; border-color: $clay; }
+  }
+}
+
+.ex-editor-reset {
+  background: none;
+  border: none;
+  font-family: $font;
+  font-size: 12px;
+  font-weight: 600;
+  color: $cream600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s;
+
+  &:active { color: $ink; }
+}
