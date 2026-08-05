@@ -27,15 +27,20 @@ const ZONE_COLORS: Record<Zone, string> = {
 type Activity = { key: string; label: string; zone: Zone }
 
 const ACTIVITY_TYPES: Activity[] = [
-  { key: 'gym_legs',   label: 'Gym: Unterkörper', zone: 'gym' },
-  { key: 'gym_push',   label: 'Gym: Push',         zone: 'gym' },
-  { key: 'gym_pull',   label: 'Gym: Pull',         zone: 'gym' },
-  { key: 'kettlebell', label: 'Kettlebell',         zone: 'home' },
-  { key: 'run',        label: 'Lauf',               zone: 'run' },
-  { key: 'tennis',     label: 'Tennis',             zone: 'flex' },
-  { key: 'rad',        label: 'Rennrad',            zone: 'flex' },
-  { key: 'flex',       label: 'Flex / offen',       zone: 'flex' },
-  { key: 'rest',       label: 'Ruhetag',            zone: 'rest' },
+  { key: 'gym_brust_ruecken',  label: 'Brust & Rücken',   zone: 'gym' },
+  { key: 'gym_arme_schultern', label: 'Arme & Schultern',  zone: 'gym' },
+  { key: 'gym_beine_core',     label: 'Beine & Core',      zone: 'gym' },
+  { key: 'kb_full',            label: 'KB: Ganzkörper',    zone: 'home' },
+  { key: 'kb_lower',           label: 'KB: Unterkörper',   zone: 'home' },
+  { key: 'kb_upper',           label: 'KB: Oberkörper',    zone: 'home' },
+  { key: 'kb_core',            label: 'KB: Core',          zone: 'home' },
+  { key: 'run_long',           label: 'Langer Lauf',       zone: 'run' },
+  { key: 'run_intervall',      label: 'Intervall',         zone: 'run' },
+  { key: 'run_basic',          label: 'Basic (~5km)',       zone: 'run' },
+  { key: 'tennis',             label: 'Tennis',            zone: 'flex' },
+  { key: 'rad',                label: 'Rennrad',           zone: 'flex' },
+  { key: 'flex',               label: 'Flex / offen',      zone: 'flex' },
+  { key: 'rest',               label: 'Ruhetag',           zone: 'rest' },
 ]
 
 const ACTIVITY_MAP: Record<string, Activity> = Object.fromEntries(
@@ -43,78 +48,111 @@ const ACTIVITY_MAP: Record<string, Activity> = Object.fromEntries(
 )
 
 const DEFAULT_TEMPLATE: Record<DayKey, string[]> = {
-  mo: ['gym_legs'],
-  di: ['gym_push'],
+  mo: ['gym_beine_core'],
+  di: ['gym_brust_ruecken'],
   mi: ['flex'],
-  do: ['gym_pull'],
-  fr: ['kettlebell'],
-  sa: ['run'],
+  do: ['gym_arme_schultern'],
+  fr: ['kb_full'],
+  sa: ['run_long'],
   so: ['rest'],
+}
+
+// Migrate old activity keys to new ones
+const KEY_MIGRATION: Record<string, string> = {
+  gym_push:   'gym_brust_ruecken',
+  gym_pull:   'gym_brust_ruecken',
+  gym_legs:   'gym_beine_core',
+  kettlebell: 'kb_full',
+  run:        'run_long',
 }
 
 type Exercise = { id: string; name: string; sets: number; reps: string }
 
-// Default exercises shown before any customization
 const EXERCISES: Record<string, Exercise[]> = {
-  gym_legs: [
-    { id: 'legs1', name: 'Kniebeuge',              sets: 4, reps: '6-8' },
-    { id: 'legs2', name: 'Rumänisches Kreuzheben', sets: 3, reps: '8-10' },
-    { id: 'legs3', name: 'Ausfallschritte',        sets: 3, reps: '10/Bein' },
-    { id: 'legs4', name: 'Wadenheben',             sets: 3, reps: '12-15' },
-    { id: 'legs5', name: 'Plank',                  sets: 3, reps: '45s' },
+  gym_brust_ruecken: [
+    { id: 'br1', name: 'Bankdrücken',          sets: 4, reps: '6-8' },
+    { id: 'br2', name: 'Klimmzüge',            sets: 4, reps: '6-8' },
+    { id: 'br3', name: 'Schrägbankdrücken',    sets: 3, reps: '8-10' },
+    { id: 'br4', name: 'Rudern vorgebeugt',    sets: 3, reps: '8-10' },
+    { id: 'br5', name: 'Fliegende Kurzhantel', sets: 3, reps: '12' },
+    { id: 'br6', name: 'Face Pulls',           sets: 3, reps: '15' },
   ],
-  gym_push: [
-    { id: 'push1', name: 'Bankdrücken',           sets: 4, reps: '6-8' },
-    { id: 'push2', name: 'Schulterdrücken',       sets: 3, reps: '8-10' },
-    { id: 'push3', name: 'Dips',                  sets: 3, reps: '8-12' },
-    { id: 'push4', name: 'Trizepsdrücken Kabel',  sets: 3, reps: '10-12' },
-    { id: 'push5', name: 'Seitheben',             sets: 3, reps: '12-15' },
+  gym_arme_schultern: [
+    { id: 'as1', name: 'Schulterdrücken',       sets: 4, reps: '8-10' },
+    { id: 'as2', name: 'Bizepscurls',           sets: 3, reps: '10-12' },
+    { id: 'as3', name: 'Trizepsdrücken Kabel',  sets: 3, reps: '10-12' },
+    { id: 'as4', name: 'Seitheben',             sets: 3, reps: '12-15' },
+    { id: 'as5', name: 'Hammercurls',           sets: 3, reps: '10-12' },
+    { id: 'as6', name: 'Trizeps Overhead',      sets: 3, reps: '10-12' },
   ],
-  gym_pull: [
-    { id: 'pull1', name: 'Klimmzüge',        sets: 4, reps: '6-8' },
-    { id: 'pull2', name: 'Rudern vorgebeugt', sets: 3, reps: '8-10' },
-    { id: 'pull3', name: 'Latzug eng',        sets: 3, reps: '10-12' },
-    { id: 'pull4', name: 'Bizepscurls',       sets: 3, reps: '10-12' },
-    { id: 'pull5', name: 'Face Pulls',        sets: 3, reps: '15' },
+  gym_beine_core: [
+    { id: 'bc1', name: 'Kniebeuge',              sets: 4, reps: '6-8' },
+    { id: 'bc2', name: 'Rumänisches Kreuzheben', sets: 3, reps: '8-10' },
+    { id: 'bc3', name: 'Ausfallschritte',        sets: 3, reps: '10/Bein' },
+    { id: 'bc4', name: 'Wadenheben',             sets: 3, reps: '12-15' },
+    { id: 'bc5', name: 'Plank',                  sets: 3, reps: '45s' },
   ],
-  kettlebell: [
-    { id: 'kb1', name: 'KB Swings',        sets: 4, reps: '20' },
-    { id: 'kb2', name: 'Goblet Squats',    sets: 3, reps: '12' },
-    { id: 'kb3', name: 'KB Clean & Press', sets: 3, reps: '8/Seite' },
-    { id: 'kb4', name: 'KB Rows',          sets: 3, reps: '10/Seite' },
-    { id: 'kb5', name: 'Halos',            sets: 2, reps: '10/Seite' },
+  kb_full: [
+    { id: 'kbf1', name: 'KB Swings',        sets: 4, reps: '20' },
+    { id: 'kbf2', name: 'Goblet Squats',    sets: 3, reps: '12' },
+    { id: 'kbf3', name: 'KB Clean & Press', sets: 3, reps: '8/Seite' },
+    { id: 'kbf4', name: 'KB Rows',          sets: 3, reps: '10/Seite' },
+    { id: 'kbf5', name: 'Turkish Get-Up',   sets: 3, reps: '3/Seite' },
+  ],
+  kb_lower: [
+    { id: 'kbl1', name: 'KB Swings',           sets: 4, reps: '20' },
+    { id: 'kbl2', name: 'Goblet Squats',        sets: 4, reps: '12' },
+    { id: 'kbl3', name: 'KB Deadlift',          sets: 3, reps: '10' },
+    { id: 'kbl4', name: 'KB Front Rack Squat',  sets: 3, reps: '10' },
+    { id: 'kbl5', name: 'Halos',               sets: 2, reps: '10/Seite' },
+  ],
+  kb_upper: [
+    { id: 'kbu1', name: 'KB Clean & Press', sets: 4, reps: '8/Seite' },
+    { id: 'kbu2', name: 'KB Rows',          sets: 3, reps: '10/Seite' },
+    { id: 'kbu3', name: 'KB Push Press',    sets: 3, reps: '8/Seite' },
+    { id: 'kbu4', name: 'Halos',            sets: 3, reps: '10/Seite' },
+    { id: 'kbu5', name: 'KB Windmill',      sets: 2, reps: '8/Seite' },
+  ],
+  kb_core: [
+    { id: 'kbc1', name: 'Plank',                   sets: 4, reps: '45s' },
+    { id: 'kbc2', name: 'KB Windmill',             sets: 3, reps: '8/Seite' },
+    { id: 'kbc3', name: 'Turkish Get-Up',          sets: 3, reps: '3/Seite' },
+    { id: 'kbc4', name: 'Halos',                   sets: 3, reps: '12/Seite' },
+    { id: 'kbc5', name: 'Russian Twists mit KB',   sets: 3, reps: '20' },
   ],
 }
 
-// Full exercise library for suggestions
 const EXERCISE_LIBRARY: Record<string, Array<{ name: string; sets: number; reps: string }>> = {
-  gym_push: [
+  gym_brust_ruecken: [
     { name: 'Bankdrücken',          sets: 4, reps: '6-8' },
     { name: 'Schrägbankdrücken',    sets: 3, reps: '8-10' },
-    { name: 'Schulterdrücken',      sets: 3, reps: '8-10' },
-    { name: 'Dips',                 sets: 3, reps: '8-12' },
-    { name: 'Trizepsdrücken Kabel', sets: 3, reps: '10-12' },
-    { name: 'Seitheben',            sets: 3, reps: '12-15' },
-    { name: 'Frontdrücken',         sets: 3, reps: '10-12' },
+    { name: 'Klimmzüge',            sets: 4, reps: '6-8' },
+    { name: 'Rudern vorgebeugt',    sets: 3, reps: '8-10' },
     { name: 'Fliegende Kurzhantel', sets: 3, reps: '12' },
-    { name: 'Arnold Press',         sets: 3, reps: '10-12' },
+    { name: 'Latzug weit',          sets: 3, reps: '10-12' },
+    { name: 'T-Bar Rudern',         sets: 3, reps: '8-10' },
+    { name: 'Face Pulls',           sets: 3, reps: '15' },
+    { name: 'Reverse Flyes',        sets: 3, reps: '15' },
+    { name: 'Dips',                 sets: 3, reps: '8-12' },
     { name: 'Push-ups',             sets: 3, reps: '15-20' },
-    { name: 'Trizeps Overhead',     sets: 3, reps: '10-12' },
+    { name: 'Rudern Kabel',         sets: 3, reps: '10-12' },
+    { name: 'Einarm KB Rudern',     sets: 3, reps: '10/Seite' },
   ],
-  gym_pull: [
-    { name: 'Klimmzüge',               sets: 4, reps: '6-8' },
-    { name: 'Rudern vorgebeugt',        sets: 3, reps: '8-10' },
-    { name: 'Latzug eng',              sets: 3, reps: '10-12' },
-    { name: 'Bizepscurls',             sets: 3, reps: '10-12' },
-    { name: 'Face Pulls',              sets: 3, reps: '15' },
-    { name: 'Latzug weit',             sets: 3, reps: '10-12' },
-    { name: 'Rudern Kabel',            sets: 3, reps: '10-12' },
-    { name: 'Hammercurls',             sets: 3, reps: '10-12' },
-    { name: 'Reverse Flyes',           sets: 3, reps: '15' },
-    { name: 'T-Bar Rudern',            sets: 4, reps: '8-10' },
-    { name: 'Einarm Kurzhantelrudern', sets: 3, reps: '10/Seite' },
+  gym_arme_schultern: [
+    { name: 'Schulterdrücken',       sets: 4, reps: '8-10' },
+    { name: 'Bizepscurls',           sets: 3, reps: '10-12' },
+    { name: 'Trizepsdrücken Kabel',  sets: 3, reps: '10-12' },
+    { name: 'Seitheben',             sets: 3, reps: '12-15' },
+    { name: 'Hammercurls',           sets: 3, reps: '10-12' },
+    { name: 'Trizeps Overhead',      sets: 3, reps: '10-12' },
+    { name: 'Arnold Press',          sets: 3, reps: '10-12' },
+    { name: 'Frontdrücken',          sets: 3, reps: '10-12' },
+    { name: 'Konzentrationscurls',   sets: 3, reps: '10/Seite' },
+    { name: 'Skull Crushers',        sets: 3, reps: '10-12' },
+    { name: 'Upright Row',           sets: 3, reps: '12' },
+    { name: 'Reverse Curls',         sets: 3, reps: '12' },
   ],
-  gym_legs: [
+  gym_beine_core: [
     { name: 'Kniebeuge',              sets: 4, reps: '6-8' },
     { name: 'Rumänisches Kreuzheben', sets: 3, reps: '8-10' },
     { name: 'Ausfallschritte',        sets: 3, reps: '10/Bein' },
@@ -127,53 +165,99 @@ const EXERCISE_LIBRARY: Record<string, Array<{ name: string; sets: number; reps:
     { name: 'Bulgarian Split Squat',  sets: 3, reps: '8/Bein' },
     { name: 'Kreuzheben',             sets: 4, reps: '5-6' },
     { name: 'Leg Extension',          sets: 3, reps: '12-15' },
+    { name: 'Ab Wheel',               sets: 3, reps: '10' },
+    { name: 'Russian Twists',         sets: 3, reps: '20' },
   ],
-  kettlebell: [
+  kb_full: [
     { name: 'KB Swings',          sets: 4, reps: '20' },
     { name: 'Goblet Squats',      sets: 3, reps: '12' },
     { name: 'KB Clean & Press',   sets: 3, reps: '8/Seite' },
     { name: 'KB Rows',            sets: 3, reps: '10/Seite' },
-    { name: 'Halos',              sets: 2, reps: '10/Seite' },
     { name: 'Turkish Get-Up',     sets: 3, reps: '3/Seite' },
-    { name: 'KB Deadlift',        sets: 3, reps: '10' },
     { name: 'KB Snatch',          sets: 3, reps: '8/Seite' },
-    { name: 'KB Front Rack Squat',sets: 3, reps: '10' },
-    { name: 'KB Windmill',        sets: 2, reps: '8/Seite' },
     { name: 'KB Push Press',      sets: 3, reps: '8/Seite' },
+    { name: 'Halos',              sets: 2, reps: '10/Seite' },
+    { name: 'KB Deadlift',        sets: 3, reps: '10' },
+  ],
+  kb_lower: [
+    { name: 'KB Swings',            sets: 4, reps: '20' },
+    { name: 'Goblet Squats',        sets: 4, reps: '12' },
+    { name: 'KB Deadlift',          sets: 3, reps: '10' },
+    { name: 'KB Front Rack Squat',  sets: 3, reps: '10' },
+    { name: 'Halos',                sets: 2, reps: '10/Seite' },
+    { name: 'Lunge mit KB',         sets: 3, reps: '10/Bein' },
+    { name: 'KB Sumo Deadlift',     sets: 3, reps: '12' },
+  ],
+  kb_upper: [
+    { name: 'KB Clean & Press',  sets: 4, reps: '8/Seite' },
+    { name: 'KB Rows',           sets: 3, reps: '10/Seite' },
+    { name: 'KB Push Press',     sets: 3, reps: '8/Seite' },
+    { name: 'Halos',             sets: 3, reps: '10/Seite' },
+    { name: 'KB Windmill',       sets: 2, reps: '8/Seite' },
+    { name: 'KB Floor Press',    sets: 3, reps: '10/Seite' },
+    { name: 'KB Renegade Row',   sets: 3, reps: '8/Seite' },
+  ],
+  kb_core: [
+    { name: 'Plank',                 sets: 4, reps: '45s' },
+    { name: 'KB Windmill',           sets: 3, reps: '8/Seite' },
+    { name: 'Turkish Get-Up',        sets: 3, reps: '3/Seite' },
+    { name: 'Halos',                 sets: 3, reps: '12/Seite' },
+    { name: 'KB Swings',             sets: 3, reps: '15' },
+    { name: 'Ab Wheel',              sets: 3, reps: '10' },
+    { name: 'Russian Twists mit KB', sets: 3, reps: '20' },
+    { name: 'Dead Bug',              sets: 3, reps: '10/Seite' },
   ],
 }
 
-const GYM_KB_ACTS = ['gym_push', 'gym_pull', 'gym_legs', 'kettlebell']
+const GYM_KB_ACTS = [
+  'gym_brust_ruecken', 'gym_arme_schultern', 'gym_beine_core',
+  'kb_full', 'kb_lower', 'kb_upper', 'kb_core',
+]
 
 const NOTES: Record<string, string> = {
-  run:    'Lauf — Distanz im Tab «Lauf-Aufbau» eintragen. Bei Kombi mit Gym am selben Tag: Lauf nach dem Krafttraining einplanen.',
-  tennis: 'Tennis — zählt als Konditionsreiz. An einem Gym-Tag eher als lockere Ergänzung, nicht direkt davor.',
-  rad:    'Rennrad — lockere bis mittlere Ausfahrt.',
-  flex:   'Flex-Tag — Tennis, Rad, ein kurzer Lauf oder Ruhe. Was gerade passt.',
-  rest:   'Ruhetag oder leichte Mobility. Erholung ist aktiver Teil des Muskelaufbaus.',
+  run_long:     'Langer Lauf — Distanz im Tab «Lauf-Aufbau» eintragen. Pace: 60–70% HRmax, ruhig halten. Wöchentliche Steigerung: ~10%.',
+  run_intervall:'Intervall — z.B. 6×800m oder 4×1km. 10 min Aufwärmen, danach lockerer Auslauf. Hohe neuromuskuläre Last.',
+  run_basic:    'Basic (~5km) — lockeres, aerobes Tempo. Ideal als Erholung oder Tageseinstieg.',
+  tennis:       'Tennis — zählt als Konditionsreiz. An Gym-Tagen eher als lockere Ergänzung.',
+  rad:          'Rennrad — lockere bis mittlere Ausfahrt. Weniger Interferenz mit Gym als Laufen.',
+  flex:         'Flex-Tag — Tennis, Rad, kurzer Lauf oder Ruhe. Was gerade passt.',
+  rest:         'Ruhetag oder leichte Mobility. Erholung ist aktiver Teil des Muskelaufbaus.',
 }
 
 const HALF_MARATHON_KM = 21.1
 const MONTHS_DE = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez']
 
 // ── Warning system ────────────────────────────────────────────────────
-// Based on: Frontiers (2025), Barbell Medicine, PMC 5752732, PMC 7224562,
-//           PMC 11359207, PMC 5093324, PLOS ONE 0233134, TrainingPeaks
+// Tag-based: warnings fire based on actual muscle groups stressed,
+// not hardcoded activity names — so kb_core doesn't trigger leg warnings.
+//
+// Sources: Frontiers (2025), Barbell Medicine, PMC 5752732, PMC 7224562,
+//          PMC 11359207, PMC 5093324, PLOS ONE 0233134, TrainingPeaks
 
 type Warning = { severity: 'warning' | 'info'; text: string }
 
-const LOWER_STR = ['gym_legs', 'kettlebell']
-const UPPER_STR = ['gym_push', 'gym_pull']
-const ALL_STR   = [...LOWER_STR, ...UPPER_STR]
+// Activities that significantly stress lower body
+const LOWER = ['gym_beine_core', 'kb_full', 'kb_lower', 'run_long']
+// Activities that significantly stress upper body
+const UPPER = ['gym_brust_ruecken', 'gym_arme_schultern', 'kb_full', 'kb_upper']
+// Lower-body strength activities (not just cardio)
+const STR_LOWER = ['gym_beine_core', 'kb_lower', 'kb_full']
+// High-intensity cardio (significant fatigue + leg stress for run_long)
+const RUN_HI = ['run_long', 'run_intervall']
+// Low-intensity cardio
+const RUN_LO = ['run_basic', 'rad']
+// All gym/kb strength activities
+const ALL_STR = [...GYM_KB_ACTS]
+
+function anyIn(acts: string[], keys: string[]): boolean {
+  return keys.some(k => acts.includes(k))
+}
 
 function prevDayKey(k: DayKey): DayKey {
   return DAY_KEYS[(DAY_KEYS.indexOf(k) + 6) % 7]
 }
 function nextDayKey(k: DayKey): DayKey {
   return DAY_KEYS[(DAY_KEYS.indexOf(k) + 1) % 7]
-}
-function hasAny(acts: string[], keys: string[]): boolean {
-  return keys.some(k => acts.includes(k))
 }
 
 function analyzeDay(k: DayKey, t: Record<DayKey, string[]>): Warning[] {
@@ -182,79 +266,110 @@ function analyzeDay(k: DayKey, t: Record<DayKey, string[]>): Warning[] {
   const prev = t[prevDayKey(k)] ?? []
   const next = t[nextDayKey(k)] ?? []
 
-  const hasLower   = hasAny(acts, LOWER_STR)
-  const hasUpper   = hasAny(acts, UPPER_STR) && !hasLower
-  const hasRun     = acts.includes('run')
-  const hasRad     = acts.includes('rad')
-  const hasTennis  = acts.includes('tennis')
+  const aLower    = anyIn(acts, LOWER)
+  const aStrLower = anyIn(acts, STR_LOWER)
+  const aRunHi    = anyIn(acts, RUN_HI)
+  const aRunLo    = anyIn(acts, RUN_LO) && !aRunHi
+  const aRad      = acts.includes('rad')
+  const aTennis   = acts.includes('tennis')
   const activeCount = acts.filter(a => a !== 'rest').length
 
-  // Same-day: lower body strength + run
-  if (hasLower && hasRun) {
-    w.push({ severity: 'warning', text: 'Beintraining + Lauf am selben Tag: Kraft zuerst einplanen. AMPK-Signaling vom Lauf hemmt mTOR bis zu 3h — das bremst Muskelproteinsynthese direkt nach dem Training.' })
+  const nLower    = anyIn(next, LOWER)
+  const nStrLower = anyIn(next, STR_LOWER)
+  const nRunHi    = anyIn(next, RUN_HI)
+  const nRunLo    = anyIn(next, RUN_LO) && !nRunHi
+
+  const pLower    = anyIn(prev, LOWER)
+  const pStrLower = anyIn(prev, STR_LOWER)
+  const pRunHi    = anyIn(prev, RUN_HI)
+  const pRunLo    = anyIn(prev, RUN_LO) && !pRunHi
+
+  // ── Same-day ─────────────────────────────────────────────────────
+
+  if (aStrLower && aRunHi)
+    w.push({ severity: 'warning', text: 'Unterkörper-Kraft + intensiver Lauf am selben Tag: Kraft zuerst einplanen. AMPK-Signaling vom Laufen hemmt mTOR bis 3h — Muskelproteinsynthese wird gebremst.' })
+  else if (aStrLower && aRunLo)
+    w.push({ severity: 'info', text: 'Unterkörper-Training + lockerer Lauf: Gym zuerst, dann Laufen. Kurze, lockere Läufe nach dem Training sind gut verträglich.' })
+
+  if (!aLower && anyIn(acts, UPPER) && (aRunHi || aRunLo))
+    w.push({ severity: 'info', text: 'Oberkörper-Einheit + Lauf am selben Tag: Kein Interferenzeffekt auf Beine — freie Reihenfolge möglich.' })
+
+  if (aStrLower && aRad && !aRunHi)
+    w.push({ severity: 'info', text: 'Beintraining + Rennrad: Deutlich weniger Interferenz als Laufen — kein exzentrischer Belastungsanteil beim Radfahren.' })
+
+  if (aStrLower && aTennis && !aRunHi)
+    w.push({ severity: 'info', text: 'Beintraining + Tennis: Gym zuerst einplanen — Tennis beansprucht ähnliche neuromuskuläre Kapazitäten.' })
+
+  if (activeCount >= 3)
+    w.push({ severity: 'warning', text: `${activeCount} Einheiten heute: Sehr hohe Tageslast — echte Erholung kaum möglich. Besser eine Einheit verschieben.` })
+
+  // ── Today → tomorrow ────────────────────────────────────────────
+
+  if (aLower && nRunHi)
+    w.push({ severity: 'warning', text: 'Unterkörper heute → intensiver Lauf morgen: Exzentrisches Training beeinträchtigt Laufökonomie bis 48h. Morgen Tempo anpassen.' })
+  else if (aStrLower && nRunLo)
+    w.push({ severity: 'info', text: 'Unterkörper-Kraft heute → lockerer Lauf morgen: Beine noch in der Erholung. Locker laufen ist ok, auf Körpergefühl achten.' })
+
+  if (aRunHi && nLower)
+    w.push({ severity: 'warning', text: 'Intensiver Lauf heute → Unterkörper morgen: Glykogen und Muskeln noch nicht voll erholt. Gut essen und schlafen.' })
+  else if (aRunLo && nStrLower)
+    w.push({ severity: 'info', text: 'Lockerer Lauf heute → Unterkörper-Kraft morgen: Geringe Interferenz. Kohlenhydrate nach dem Lauf tanken.' })
+
+  if (aRunHi && nRunHi)
+    w.push({ severity: 'warning', text: 'Intensiver Lauf heute → intensiver Lauf morgen: Zwei harte Cardio-Einheiten hintereinander — Erholung nicht ausreichend. Eine Einheit locker halten.' })
+
+  // Same gym type tomorrow
+  const GYM_TYPES = ['gym_beine_core', 'gym_brust_ruecken', 'gym_arme_schultern'] as const
+  const GYM_WARN_LABELS: Record<string, string> = {
+    gym_beine_core:     'Beine & Core',
+    gym_brust_ruecken:  'Brust & Rücken',
+    gym_arme_schultern: 'Arme & Schultern',
   }
-  // Same-day: upper body + run
-  if (hasUpper && hasRun) {
-    w.push({ severity: 'info', text: 'Oberkörper-Kraft + Lauf: Kein Interferenzeffekt. Arm- und Schultermuskulatur werden vom Laufen nicht beeinträchtigt — freie Reihenfolge möglich.' })
-  }
-  // Same-day: lower body + cycling
-  if (hasLower && hasRad && !hasRun) {
-    w.push({ severity: 'info', text: 'Rennrad nach Beintraining: Deutlich weniger Interferenz als Laufen — Radfahren hat kaum exzentrischen Belastungsanteil und schont die Muskelstruktur.' })
-  }
-  // Same-day: lower body + tennis
-  if (hasLower && hasTennis && !hasRun) {
-    w.push({ severity: 'info', text: 'Tennis + Beintraining: Tennis beansprucht ähnliche neuromuskuläre Kapazitäten. Gym vor Tennis einplanen, nicht umgekehrt.' })
-  }
-  // Same-day overload
-  if (activeCount >= 3) {
-    w.push({ severity: 'warning', text: `${activeCount} Trainingseinheiten an einem Tag: Sehr hohe Tageslast. Erholung ist kaum möglich — besser eine Einheit auf morgen verschieben.` })
+  for (const gt of GYM_TYPES) {
+    if (acts.includes(gt) && next.includes(gt))
+      w.push({ severity: 'warning', text: `${GYM_WARN_LABELS[gt]} morgen ebenfalls: Weniger als 48h Pause ist für Hypertrophie suboptimal und erhöht das Verletzungsrisiko.` })
   }
 
-  // Cross-day: this day → next day
-  if (hasLower && next.includes('run')) {
-    w.push({ severity: 'warning', text: 'Beintraining heute → Lauf morgen: Exzentrisches Training reduziert Muskelkraft und Laufökonomie bis zu 48h. Der Lauf morgen wird schwerer als erwartet.' })
-  }
-  if (hasRun && hasAny(next, LOWER_STR)) {
-    w.push({ severity: 'info', text: 'Lauf heute → Beintraining morgen: Glykogen nach dem Lauf ggf. noch nicht voll aufgefüllt. Nach dem Lauf bewusst Kohlenhydrate tanken.' })
-  }
-  if (acts.includes('gym_legs') && next.includes('gym_legs')) {
-    w.push({ severity: 'warning', text: 'Bein-Tag morgen ebenfalls: Weniger als 48h Pause zwischen zwei Beineinheiten ist für Hypertrophie suboptimal und erhöht das Verletzungsrisiko.' })
-  }
-  if (acts.includes('gym_push') && next.includes('gym_push')) {
-    w.push({ severity: 'warning', text: 'Push-Tag morgen ebenfalls: Drückende Muskulatur (Brust, Schultern, Trizeps) braucht 48h Pause für optimale Hypertrophie und Verletzungsprävention.' })
-  }
-  if (acts.includes('gym_pull') && next.includes('gym_pull')) {
-    w.push({ severity: 'warning', text: 'Pull-Tag morgen ebenfalls: Ziehende Muskulatur (Rücken, Bizeps) braucht 48h Pause für optimale Entwicklung und Verletzungsprävention.' })
-  }
-  if (acts.includes('kettlebell') && next.includes('gym_legs')) {
-    w.push({ severity: 'info', text: 'Kettlebell heute → Bein-Gym morgen: KB-Übungen wie Swings und Goblet Squats belasten Posterior Chain und Quads ähnlich wie das Beintraining. 48h Pause für Unterkörper optimal.' })
-  }
-  if (acts.includes('gym_legs') && next.includes('kettlebell')) {
-    w.push({ severity: 'info', text: 'Bein-Gym heute → Kettlebell morgen: Unterkörpermuskulatur ist noch in der Erholung. KB-Training morgen mit reduzierter Intensität einplanen.' })
+  // Different lower strength types tomorrow (e.g. gym_beine_core + kb_lower)
+  if (aStrLower && nStrLower && !acts.some(a => STR_LOWER.includes(a) && next.includes(a)))
+    w.push({ severity: 'warning', text: 'Zwei verschiedene Unterkörper-Kraft-Einheiten hintereinander: Beine und posterior chain haben wenig Erholungszeit. Intensität morgen bewusst anpassen.' })
+
+  // Upper overlap tomorrow (partial muscle sharing)
+  if (acts.includes('gym_brust_ruecken') && next.includes('gym_arme_schultern'))
+    w.push({ severity: 'info', text: 'Brust & Rücken heute → Arme & Schultern morgen: Trizeps und vordere Schultern nach dem Push-Anteil noch leicht ermüdet.' })
+  if (acts.includes('gym_arme_schultern') && next.includes('gym_brust_ruecken'))
+    w.push({ severity: 'info', text: 'Arme & Schultern heute → Brust & Rücken morgen: Schultern und Trizeps beeinflussen die Push-Performance des Folgetags.' })
+
+  // ── Yesterday → today ───────────────────────────────────────────
+
+  if (pLower && aRunHi)
+    w.push({ severity: 'warning', text: 'Unterkörper gestern → intensiver Lauf heute: Muskulatur noch in der Erholung. Tempo bewusst reduzieren.' })
+  else if (pStrLower && aRunLo)
+    w.push({ severity: 'info', text: 'Unterkörper-Kraft gestern → lockerer Lauf heute: Beine noch leicht ermüdet. Auf Körpergefühl achten.' })
+
+  if (pRunHi && aLower)
+    w.push({ severity: 'warning', text: 'Intensiver Lauf gestern → Unterkörper heute: Energiespeicher und Muskeln noch nicht voll erholt. Gewichte ggf. reduzieren.' })
+  else if (pRunLo && aStrLower)
+    w.push({ severity: 'info', text: 'Lockerer Lauf gestern → Unterkörper-Kraft heute: Geringe Interferenz. Vor dem Training ausreichend essen.' })
+
+  if (pRunHi && aRunHi)
+    w.push({ severity: 'warning', text: 'Intensiver Lauf gestern → intensiver Lauf heute: Tempo heute deutlich reduzieren oder auf Recovery-Lauf wechseln.' })
+
+  // Same gym type yesterday
+  for (const gt of GYM_TYPES) {
+    if (prev.includes(gt) && acts.includes(gt))
+      w.push({ severity: 'warning', text: `${GYM_WARN_LABELS[gt]} gestern → heute: Zu wenig Erholung für optimale Hypertrophie. 48h Pause zwischen identischen Einheiten.` })
   }
 
-  // Cross-day: previous day → this day
-  if (hasRun && hasAny(prev, LOWER_STR)) {
-    w.push({ severity: 'warning', text: 'Beintraining gestern → Lauf heute: Muskelkraft und Laufökonomie sind noch eingeschränkt (bis 48h nach exzentrischem Training). Tempo anpassen.' })
-  }
-  if (hasAny(acts, LOWER_STR) && prev.includes('run')) {
-    w.push({ severity: 'info', text: 'Lauf gestern → Beintraining heute: Glykogenspeicher ggf. noch nicht voll aufgefüllt. Vor dem Training gut essen.' })
-  }
-  if (acts.includes('gym_legs') && prev.includes('gym_legs')) {
-    w.push({ severity: 'warning', text: 'Bein-Tag gestern → Beintraining heute: Zu wenig Erholung für optimale Hypertrophie. 48h Pause zwischen Beineinheiten sind ideal.' })
-  }
-  if (acts.includes('gym_push') && prev.includes('gym_push')) {
-    w.push({ severity: 'warning', text: 'Push-Tag gestern → Push heute: Drückende Muskulatur ist noch in der Erholung. 48h Pause zwischen Push-Einheiten für optimale Adaptation.' })
-  }
-  if (acts.includes('gym_pull') && prev.includes('gym_pull')) {
-    w.push({ severity: 'warning', text: 'Pull-Tag gestern → Pull heute: Rücken und Bizeps sind noch in der Erholung. 48h Pause zwischen Pull-Einheiten empfohlen.' })
-  }
-  if (acts.includes('kettlebell') && prev.includes('gym_legs')) {
-    w.push({ severity: 'info', text: 'Bein-Gym gestern → Kettlebell heute: Unterkörpermuskulatur noch in der Erholung. KB-Gewicht und Intensität anpassen.' })
-  }
-  if (acts.includes('gym_legs') && prev.includes('kettlebell')) {
-    w.push({ severity: 'info', text: 'Kettlebell gestern → Bein-Gym heute: KB-Swings und Squats haben posterior chain und Quads bereits belastet. Intensität des Beintrainings bewusst anpassen.' })
-  }
+  // Different lower strength types yesterday
+  if (pStrLower && aStrLower && !prev.some(a => STR_LOWER.includes(a) && acts.includes(a)))
+    w.push({ severity: 'warning', text: 'Unterkörper-Kraft gestern → Unterkörper-Kraft heute: Zu wenig Erholungszeit für Beine und posterior chain. 48h Pause empfohlen.' })
+
+  // Upper overlap yesterday
+  if (prev.includes('gym_brust_ruecken') && acts.includes('gym_arme_schultern'))
+    w.push({ severity: 'info', text: 'Brust & Rücken gestern → Arme & Schultern heute: Trizeps und vordere Schultern noch leicht ermüdet.' })
+  if (prev.includes('gym_arme_schultern') && acts.includes('gym_brust_ruecken'))
+    w.push({ severity: 'info', text: 'Arme & Schultern gestern → Brust & Rücken heute: Schultern und Trizeps aus dem Vortag beeinflussen die Push-Performance.' })
 
   return w
 }
@@ -262,15 +377,18 @@ function analyzeDay(k: DayKey, t: Record<DayKey, string[]>): Warning[] {
 function analyzeWeek(t: Record<DayKey, string[]>): Warning[] {
   const w: Warning[] = []
   const restDays = DAY_KEYS.filter(k => t[k]?.every(a => a === 'rest')).length
-  const gymDays  = DAY_KEYS.filter(k => hasAny(t[k] ?? [], ALL_STR)).length
-  const runDays  = DAY_KEYS.filter(k => (t[k] ?? []).includes('run')).length
+  const strDays  = DAY_KEYS.filter(k => anyIn(t[k] ?? [], ALL_STR)).length
+  const runDays  = DAY_KEYS.filter(k => anyIn(t[k] ?? [], [...RUN_HI, ...RUN_LO])).length
+  const hiRunDays = DAY_KEYS.filter(k => anyIn(t[k] ?? [], RUN_HI)).length
 
   if (restDays === 0)
     w.push({ severity: 'warning', text: 'Kein Ruhetag diese Woche: Mindestens 1–2 echte Erholungstage sind entscheidend für Muskelaufbau, Hormonhaushalt und Verletzungsprävention.' })
-  if (gymDays < 2)
-    w.push({ severity: 'info', text: 'Weniger als 2 Krafteinheiten: Für Muskelerhalt beim Concurrent Training werden 2–3 Gym-Tage pro Woche empfohlen.' })
-  if (runDays >= 3 && gymDays >= 3)
-    w.push({ severity: 'info', text: '3+ Lauf- und 3+ Krafttage: Hohes Gesamtvolumen. Auf ausreichend Schlaf und Kohlenhydrate achten — Concurrent Training erhöht den Erholungsbedarf deutlich.' })
+  if (strDays < 2)
+    w.push({ severity: 'info', text: 'Weniger als 2 Krafteinheiten: Für Muskelerhalt beim Concurrent Training werden 2–3 Gym/KB-Tage pro Woche empfohlen.' })
+  if (hiRunDays >= 3)
+    w.push({ severity: 'info', text: '3+ intensive Laufeinheiten (Lang/Intervall): Hohes Cardio-Volumen. Mindestens einen Lauf durch Basic (~5km) ersetzen.' })
+  if (runDays >= 3 && strDays >= 3)
+    w.push({ severity: 'info', text: '3+ Lauf- und 3+ Krafttage: Hohes Gesamtvolumen — Concurrent Training erhöht den Erholungsbedarf. Auf Schlaf und Kohlenhydrate achten.' })
 
   return w
 }
@@ -279,37 +397,43 @@ function analyzeExercises(actKey: string, exs: Exercise[]): Warning[] {
   const w: Warning[] = []
   const names = exs.map(e => e.name)
 
-  if (actKey === 'gym_push') {
-    const chestExs    = ['Bankdrücken', 'Schrägbankdrücken', 'Fliegende Kurzhantel', 'Dips', 'Push-ups']
-    const shoulderExs = ['Schulterdrücken', 'Seitheben', 'Frontdrücken', 'Arnold Press']
+  if (actKey === 'gym_brust_ruecken') {
+    const chestExs = ['Bankdrücken', 'Schrägbankdrücken', 'Fliegende Kurzhantel', 'Dips', 'Push-ups']
+    const backExs  = ['Klimmzüge', 'Rudern vorgebeugt', 'Latzug weit', 'T-Bar Rudern', 'Rudern Kabel', 'Einarm KB Rudern']
     if (!names.some(n => chestExs.includes(n)))
-      w.push({ severity: 'info', text: 'Keine Brust-Übung erkannt. Bankdrücken, Fliegende oder Dips für Pectoralis-Aufbau empfohlen.' })
-    if (!names.some(n => shoulderExs.includes(n)))
-      w.push({ severity: 'info', text: 'Keine Schulter-Übung erkannt. Schulterdrücken oder Seitheben für ausgewogenen Push-Tag sinnvoll.' })
-  }
-
-  if (actKey === 'gym_pull') {
-    const backExs   = ['Klimmzüge', 'Rudern vorgebeugt', 'Latzug eng', 'Latzug weit', 'Rudern Kabel', 'T-Bar Rudern', 'Einarm Kurzhantelrudern']
-    const bicepsExs = ['Bizepscurls', 'Hammercurls']
+      w.push({ severity: 'info', text: 'Keine Brust-Übung erkannt. Bankdrücken oder Fliegende für Pectoralis-Aufbau empfohlen.' })
     if (!names.some(n => backExs.includes(n)))
-      w.push({ severity: 'warning', text: 'Kein Rücken-Compound erkannt. Klimmzüge oder Rudern sind das Fundament jedes Pull-Tags.' })
-    if (!names.some(n => bicepsExs.includes(n)))
-      w.push({ severity: 'info', text: 'Keine Bizeps-Isolation erkannt. Curls als letztes Element des Pull-Tags sinnvoll.' })
+      w.push({ severity: 'warning', text: 'Kein Rücken-Compound erkannt. Klimmzüge oder Rudern sind essentiell für Brust/Rücken-Balance.' })
   }
 
-  if (actKey === 'gym_legs') {
+  if (actKey === 'gym_arme_schultern') {
+    const shoulderExs = ['Schulterdrücken', 'Seitheben', 'Frontdrücken', 'Arnold Press', 'Upright Row']
+    const bicepsExs   = ['Bizepscurls', 'Hammercurls', 'Konzentrationscurls', 'Reverse Curls']
+    const tricepsExs  = ['Trizepsdrücken Kabel', 'Trizeps Overhead', 'Skull Crushers', 'Dips']
+    if (!names.some(n => shoulderExs.includes(n)))
+      w.push({ severity: 'info', text: 'Keine Schulter-Übung erkannt. Schulterdrücken oder Seitheben für Deltoideus-Entwicklung.' })
+    if (!names.some(n => bicepsExs.includes(n)))
+      w.push({ severity: 'info', text: 'Keine Bizeps-Übung erkannt. Curls für ausgewogene Armentwicklung sinnvoll.' })
+    if (!names.some(n => tricepsExs.includes(n)))
+      w.push({ severity: 'info', text: 'Keine Trizeps-Übung erkannt. Trizeps macht ~2/3 des Oberarmvolumens aus — nicht vernachlässigen.' })
+  }
+
+  if (actKey === 'gym_beine_core') {
     const quadExs = ['Kniebeuge', 'Beinpresse', 'Ausfallschritte', 'Sumo Kniebeuge', 'Bulgarian Split Squat', 'Leg Extension']
     const hamExs  = ['Rumänisches Kreuzheben', 'Bein-Curl', 'Kreuzheben']
+    const coreExs = ['Plank', 'Ab Wheel', 'Russian Twists']
     if (!names.some(n => quadExs.includes(n)))
       w.push({ severity: 'warning', text: 'Kein Quad-Compound erkannt. Kniebeuge oder Beinpresse sind zentral für Oberschenkel-Aufbau.' })
     if (!names.some(n => hamExs.includes(n)))
-      w.push({ severity: 'info', text: 'Keine Hamstring-Übung erkannt. Rumänisches Kreuzheben oder Bein-Curl für ausgewogene Beinentwicklung.' })
+      w.push({ severity: 'info', text: 'Keine Hamstring-Übung erkannt. Rumänisches Kreuzheben für posterior chain und Kniestabilität.' })
+    if (!names.some(n => coreExs.includes(n)))
+      w.push({ severity: 'info', text: 'Keine Core-Übung erkannt. Plank oder Ab Wheel für Rumpfstabilität sinnvoll.' })
   }
 
   if (exs.length > 7)
-    w.push({ severity: 'info', text: `${exs.length} Übungen geplant: Mehr als 6–7 Übungen senken die Intensität pro Satz. Qualität vor Quantität.` })
-  else if (exs.length < 3 && ['gym_push', 'gym_pull', 'gym_legs'].includes(actKey))
-    w.push({ severity: 'info', text: `Nur ${exs.length} Übung(en): Für einen effektiven Gym-Tag sind 4–5 Übungen empfohlen.` })
+    w.push({ severity: 'info', text: `${exs.length} Übungen geplant: Mehr als 6–7 senken die Intensität pro Satz. Qualität vor Quantität.` })
+  else if (exs.length < 3 && ['gym_brust_ruecken', 'gym_arme_schultern', 'gym_beine_core'].includes(actKey))
+    w.push({ severity: 'info', text: `Nur ${exs.length} Übung(en): Für einen effektiven Gym-Tag 4–5 Übungen empfohlen.` })
 
   return w
 }
@@ -349,7 +473,10 @@ function normalizeTemplate(raw: Record<string, string[]> | null): Record<DayKey,
   const out = {} as Record<DayKey, string[]>
   for (const k of DAY_KEYS) {
     const v = raw?.[k]
-    out[k] = Array.isArray(v) && v.length ? v : [...DEFAULT_TEMPLATE[k]]
+    const migrated = Array.isArray(v)
+      ? [...new Set(v.map(a => KEY_MIGRATION[a] ?? a).filter(a => ACTIVITY_MAP[a]))]
+      : []
+    out[k] = migrated.length ? migrated : [...DEFAULT_TEMPLATE[k]]
   }
   return out
 }
@@ -370,9 +497,7 @@ function WarningBlock({ warnings }: { warnings: Warning[] }) {
     <div className="warning-block">
       {warnings.map((w, i) => (
         <div key={i} className={`warning-item warning-item--${w.severity}`}>
-          <span className="warning-item__icon">
-            {w.severity === 'warning' ? '⚠' : 'ℹ'}
-          </span>
+          <span className="warning-item__icon">{w.severity === 'warning' ? '⚠' : 'ℹ'}</span>
           <span className="warning-item__text">{w.text}</span>
         </div>
       ))}
@@ -406,7 +531,6 @@ function WeekOverview({
                 {d.toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit' })}
               </span>
             </div>
-
             <div className="week-day-row__content">
               {isRest ? (
                 <span className="week-day-row__rest">Ruhetag</span>
@@ -431,23 +555,13 @@ function WeekOverview({
                   })}
                 </div>
               )}
-
               {(warnCount > 0 || infoCount > 0) && (
                 <div className="week-day-row__badges">
-                  {warnCount > 0 && (
-                    <span className="week-day-row__badge week-day-row__badge--warn">
-                      ⚠ {warnCount}
-                    </span>
-                  )}
-                  {infoCount > 0 && (
-                    <span className="week-day-row__badge week-day-row__badge--info">
-                      ℹ {infoCount}
-                    </span>
-                  )}
+                  {warnCount > 0 && <span className="week-day-row__badge week-day-row__badge--warn">⚠ {warnCount}</span>}
+                  {infoCount > 0 && <span className="week-day-row__badge week-day-row__badge--info">ℹ {infoCount}</span>}
                 </div>
               )}
             </div>
-
             <svg className="week-day-row__arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B7AB91" strokeWidth="2" strokeLinecap="round"><path d="M9 6l6 6-6 6"/></svg>
           </div>
         )
@@ -476,9 +590,7 @@ function ExerciseEditor({
   const addFromLib = (ex: { name: string; sets: number; reps: string }) => {
     setList(prev => [...prev, {
       id: 'lib-' + ex.name.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Date.now(),
-      name: ex.name,
-      sets: ex.sets,
-      reps: ex.reps,
+      name: ex.name, sets: ex.sets, reps: ex.reps,
     }])
   }
 
@@ -497,24 +609,19 @@ function ExerciseEditor({
       setList(prev => prev.map(e => e.id === id ? { ...e, sets: n } : e))
   }
 
-  const updateReps = (id: string, val: string) => {
+  const updateReps = (id: string, val: string) =>
     setList(prev => prev.map(e => e.id === id ? { ...e, reps: val } : e))
-  }
 
   return (
     <div className="log-sheet-scrim" onClick={onClose}>
       <div className="log-sheet" onClick={e => e.stopPropagation()}>
         <div className="log-sheet__handle" />
-
         <div className="ex-editor-header">
           <div>
             <div className="log-sheet__eyebrow">Übungen anpassen</div>
             <div className="log-sheet__title" style={{ color }}>{act?.label}</div>
           </div>
-          <button
-            className="btn btn--primary btn--sm"
-            onClick={() => { onSave(actKey, list); onClose() }}
-          >
+          <button className="btn btn--primary btn--sm" onClick={() => { onSave(actKey, list); onClose() }}>
             Speichern
           </button>
         </div>
@@ -527,22 +634,14 @@ function ExerciseEditor({
               <div key={ex.id} className="ex-editor-row">
                 <span className="ex-editor-row__name">{ex.name}</span>
                 <div className="ex-editor-row__controls">
-                  <input
-                    type="number" min="1" max="10" value={ex.sets}
+                  <input type="number" min="1" max="10" value={ex.sets}
                     onChange={e => updateSets(ex.id, e.target.value)}
-                    className="ex-editor-input ex-editor-input--sets"
-                  />
+                    className="ex-editor-input ex-editor-input--sets" />
                   <span className="ex-editor-row__x">×</span>
-                  <input
-                    type="text" value={ex.reps}
+                  <input type="text" value={ex.reps}
                     onChange={e => updateReps(ex.id, e.target.value)}
-                    className="ex-editor-input ex-editor-input--reps"
-                  />
-                  <button
-                    onClick={() => remove(ex.id)}
-                    className="ex-editor-row__del"
-                    aria-label="Entfernen"
-                  >
+                    className="ex-editor-input ex-editor-input--reps" />
+                  <button onClick={() => remove(ex.id)} className="ex-editor-row__del" aria-label="Entfernen">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                   </button>
                 </div>
@@ -556,33 +655,22 @@ function ExerciseEditor({
             <div className="ex-editor-section-label">Vorschläge</div>
             <div className="ex-editor-chips">
               {suggestions.map(l => (
-                <button key={l.name} className="ex-editor-chip" onClick={() => addFromLib(l)}>
-                  + {l.name}
-                </button>
+                <button key={l.name} className="ex-editor-chip" onClick={() => addFromLib(l)}>+ {l.name}</button>
               ))}
             </div>
           </>
         )}
 
         <div className="ex-editor-custom">
-          <input
-            type="text"
-            placeholder="Eigene Übung eingeben…"
-            value={newName}
+          <input type="text" placeholder="Eigene Übung eingeben…" value={newName}
             onChange={e => setNewName(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') addCustom() }}
-            className="ex-editor-custom__input"
-          />
-          <button className="btn btn--secondary btn--sm" onClick={addCustom}>
-            Hinzufügen
-          </button>
+            className="ex-editor-custom__input" />
+          <button className="btn btn--secondary btn--sm" onClick={addCustom}>Hinzufügen</button>
         </div>
 
         {EXERCISES[actKey] && (
-          <button
-            className="ex-editor-reset"
-            onClick={() => setList(EXERCISES[actKey].map(e => ({ ...e })))}
-          >
+          <button className="ex-editor-reset" onClick={() => setList(EXERCISES[actKey].map(e => ({ ...e })))}>
             ↺ Standard wiederherstellen
           </button>
         )}
@@ -600,11 +688,7 @@ export default function PlanPage() {
   const [checks, setChecks] = useState<Record<string, boolean>>({})
   const [weights, setWeights] = useState<Record<string, string>>({})
   const [runs, setRuns] = useState<RunEntry[]>([])
-  const [runForm, setRunForm] = useState({
-    date: isoDate(new Date()),
-    distance: '',
-    type: 'long' as RunEntry['type'],
-  })
+  const [runForm, setRunForm] = useState({ date: isoDate(new Date()), distance: '', type: 'long' as RunEntry['type'] })
   const [selectedDay, setSelectedDay] = useState<DayKey | null>(null)
   const [editMode, setEditMode] = useState(false)
   const [customExercises, setCustomExercises] = useState<Record<string, Exercise[]>>({})
@@ -617,7 +701,6 @@ export default function PlanPage() {
     setWeights(lsGet<Record<string, string>>('motus-weights') ?? {})
     setRuns(lsGet<RunEntry[]>('motus-runs') ?? [])
 
-    // Week-specific template: try this week, fallback to prev week, fallback to defaults
     const thisWeek = lsGet<Record<string, string[]>>('motus-template-' + weekId)
     if (thisWeek) {
       setTemplate(normalizeTemplate(thisWeek))
@@ -626,12 +709,10 @@ export default function PlanPage() {
       prevDate.setDate(prevDate.getDate() - 7)
       const prevId = isoDate(prevDate)
       const prevWeek = lsGet<Record<string, string[]>>('motus-template-' + prevId)
-      // Also check old global key for one-time migration
       const globalFallback = lsGet<Record<string, string[]>>('motus-template')
       setTemplate(normalizeTemplate(prevWeek ?? globalFallback))
     }
 
-    // Custom exercises (global, not per week)
     const custom: Record<string, Exercise[]> = {}
     for (const actKey of GYM_KB_ACTS) {
       const saved = lsGet<Exercise[]>('motus-exercises-' + actKey)
@@ -704,13 +785,11 @@ export default function PlanPage() {
   const progressPct = Math.min(100, (longestRun / HALF_MARATHON_KM) * 100)
   const weekNum = isoWeekNumber(weekStart)
   const monthName = MONTHS_DE[weekStart.getMonth()]
-
   const weekWarnings = analyzeWeek(template)
 
   return (
     <div className="page">
 
-      {/* Header */}
       <div className="app-header">
         <div className="app-header__text">
           <div className="app-header__eyebrow">{monthName} · KW {weekNum}</div>
@@ -724,7 +803,6 @@ export default function PlanPage() {
         </button>
       </div>
 
-      {/* Day strip */}
       <div className="trainer-day-strip">
         {DAY_KEYS.map((k, idx) => {
           const acts = template[k] ?? []
@@ -735,25 +813,19 @@ export default function PlanPage() {
           const hasInfo = !hasWarn && dayWarns.some(w => w.severity === 'info')
           const pillClass = [
             'trainer-day-pill',
-            isSelected        ? 'trainer-day-pill--active'      : '',
-            hasWarn           ? 'trainer-day-pill--has-warning'  : '',
-            hasInfo           ? 'trainer-day-pill--has-info'     : '',
+            isSelected ? 'trainer-day-pill--active' : '',
+            hasWarn    ? 'trainer-day-pill--has-warning' : '',
+            hasInfo    ? 'trainer-day-pill--has-info' : '',
           ].filter(Boolean).join(' ')
           return (
-            <div
-              key={k}
-              className={pillClass}
-              onClick={() => { setTab('week'); setSelectedDay(prev => prev === k ? null : k) }}
-            >
+            <div key={k} className={pillClass}
+              onClick={() => { setTab('week'); setSelectedDay(prev => prev === k ? null : k) }}>
               {hasWarn && <span className="trainer-day-pill__alert trainer-day-pill__alert--warning">!</span>}
               {hasInfo && <span className="trainer-day-pill__alert trainer-day-pill__alert--info">i</span>}
-
               <div className="trainer-day-pill__dots">
                 {acts.map((a, i) => {
                   const zone = (ACTIVITY_MAP[a]?.zone ?? 'rest') as Zone
-                  const dotBg = isSelected && zone === 'gym'
-                    ? 'rgba(242,237,227,0.7)'
-                    : ZONE_COLORS[zone]
+                  const dotBg = isSelected && zone === 'gym' ? 'rgba(242,237,227,0.7)' : ZONE_COLORS[zone]
                   return <span key={i} className="trainer-day-pill__dot" style={{ background: dotBg }} />
                 })}
               </div>
@@ -764,24 +836,16 @@ export default function PlanPage() {
         })}
       </div>
 
-      {/* Tabs */}
       <div className="trainer-tabs">
         {([['week', 'Diese Woche'], ['run', 'Lauf-Aufbau']] as const).map(([key, label]) => (
-          <button
-            key={key}
-            className={`trainer-tab${tab === key ? ' trainer-tab--active' : ''}`}
-            onClick={() => setTab(key)}
-          >
-            {label}
-          </button>
+          <button key={key} className={`trainer-tab${tab === key ? ' trainer-tab--active' : ''}`}
+            onClick={() => setTab(key)}>{label}</button>
         ))}
       </div>
 
-      {/* ── Week tab ── */}
       {tab === 'week' && (
         <div className="trainer-body">
 
-          {/* Edit panel */}
           {editMode && (
             <div className="card card--cream trainer-edit-panel">
               <div className="trainer-edit-panel__title">Tage anpassen</div>
@@ -793,16 +857,14 @@ export default function PlanPage() {
                     {ACTIVITY_TYPES.map(a => {
                       const active = (template[k] ?? []).includes(a.key)
                       return (
-                        <button
-                          key={a.key}
+                        <button key={a.key}
                           className={`trainer-activity-chip${active ? ' trainer-activity-chip--active' : ''}`}
                           style={active ? {
                             background: ZONE_COLORS[a.zone],
                             borderColor: ZONE_COLORS[a.zone],
                             color: a.zone === 'rest' ? '#1F1F1F' : '#FAF7F1',
                           } : {}}
-                          onClick={() => toggleActivity(k, a.key)}
-                        >
+                          onClick={() => toggleActivity(k, a.key)}>
                           {a.label}
                         </button>
                       )
@@ -811,19 +873,14 @@ export default function PlanPage() {
                 </div>
               ))}
               <div className="trainer-edit-panel__tip">
-                Tipp: 3 Gym-Tage halten den Muskelaufbau am Laufen. Läufe gut nach dem Krafttraining einplanen.
+                Tipp: 3 Gym-Tage halten den Muskelaufbau am Laufen. Intensiver Lauf erst nach dem Krafttraining.
               </div>
             </div>
           )}
 
-          {/* Week overview (no day selected) */}
           {!editMode && !selectedDay && (
             <>
-              <WeekOverview
-                template={template}
-                weekStart={weekStart}
-                onSelect={k => setSelectedDay(k)}
-              />
+              <WeekOverview template={template} weekStart={weekStart} onSelect={k => setSelectedDay(k)} />
               {weekWarnings.length > 0 && (
                 <div>
                   <div className="section-label">Diese Woche</div>
@@ -833,13 +890,9 @@ export default function PlanPage() {
             </>
           )}
 
-          {/* Day detail */}
           {!editMode && selectedDay && (
             <>
-              <button
-                className="trainer-back-btn"
-                onClick={() => setSelectedDay(null)}
-              >
+              <button className="trainer-back-btn" onClick={() => setSelectedDay(null)}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M15 18l-6-6 6-6"/></svg>
                 Übersicht
               </button>
@@ -850,8 +903,8 @@ export default function PlanPage() {
                 {(template[selectedDay] ?? []).map(actKey => {
                   const act = ACTIVITY_MAP[actKey]
                   if (!act) return null
-                  const exs = getExercises(actKey, customExercises)
                   const hasExercises = GYM_KB_ACTS.includes(actKey)
+                  const exs = getExercises(actKey, customExercises)
                   const date = dayDate(DAY_KEYS.indexOf(selectedDay))
                   const color = ZONE_COLORS[act.zone]
                   return (
@@ -865,10 +918,7 @@ export default function PlanPage() {
                             <div className="trainer-card__title">{act.label}</div>
                           </div>
                           {hasExercises && (
-                            <button
-                              className="trainer-edit-exercises-btn"
-                              onClick={() => setExerciseEditor(actKey)}
-                            >
+                            <button className="trainer-edit-exercises-btn" onClick={() => setExerciseEditor(actKey)}>
                               Übungen
                             </button>
                           )}
@@ -887,27 +937,21 @@ export default function PlanPage() {
                                 {Array.from({ length: ex.sets }).map((_, si) => {
                                   const done = !!checks[`${ex.id}-${si}`]
                                   return (
-                                    <button
-                                      key={si}
+                                    <button key={si}
                                       className={`trainer-set-btn${done ? ' trainer-set-btn--done' : ''}`}
                                       style={done
                                         ? { background: color, borderColor: color, color: act.zone === 'rest' ? '#1F1F1F' : '#FAF7F1' }
-                                        : { borderColor: color + '55' }
-                                      }
+                                        : { borderColor: color + '55' }}
                                       onClick={() => toggleCheck(ex.id, si)}
-                                      aria-label={`Satz ${si + 1}`}
-                                    >
+                                      aria-label={`Satz ${si + 1}`}>
                                       {si + 1}
                                     </button>
                                   )
                                 })}
-                                <input
-                                  type="text"
-                                  placeholder="kg"
+                                <input type="text" placeholder="kg"
                                   value={weights[ex.id] ?? ''}
                                   onChange={e => updateWeight(ex.id, e.target.value)}
-                                  className="trainer-weight-input"
-                                />
+                                  className="trainer-weight-input" />
                               </div>
                             </div>
                           ))}
@@ -922,19 +966,15 @@ export default function PlanPage() {
             </>
           )}
 
-          {/* Week navigation */}
           <div className="trainer-week-nav">
             <button className="btn btn--secondary btn--sm" onClick={() => shiftWeek(-1)}>← Vorwoche</button>
             <button className="btn btn--secondary btn--sm" onClick={() => shiftWeek(1)}>Nächste →</button>
           </div>
-
         </div>
       )}
 
-      {/* ── Run tab ── */}
       {tab === 'run' && (
         <div className="trainer-body">
-
           <div className="card card--cream trainer-run-hero">
             <div className="trainer-run-hero__eyebrow">Längster Lauf bisher</div>
             <div className="trainer-run-hero__value">{longestRun.toFixed(1)} km</div>
@@ -949,33 +989,23 @@ export default function PlanPage() {
 
           <div className="trainer-run-tip">
             Steigere den langen Lauf wöchentlich um ca. 10%, bis ~18 km, dann 2 Wochen Taper.
-            Kombi-Tage (Gym + Lauf) eignen sich gut für kurze/lockere Läufe.
+            Intervalle frühestens ab 15–20km Wochenbasis einbauen.
           </div>
 
           <div className="trainer-run-form">
-            <input
-              type="date"
-              value={runForm.date}
+            <input type="date" value={runForm.date}
               onChange={e => setRunForm(f => ({ ...f, date: e.target.value }))}
-              className="trainer-run-form__input"
-            />
+              className="trainer-run-form__input" />
             <div className="trainer-run-form__row">
-              <input
-                type="number"
-                step="0.1"
-                placeholder="km"
-                value={runForm.distance}
+              <input type="number" step="0.1" placeholder="km" value={runForm.distance}
                 onChange={e => setRunForm(f => ({ ...f, distance: e.target.value }))}
-                className="trainer-run-form__input trainer-run-form__km"
-              />
-              <select
-                value={runForm.type}
+                className="trainer-run-form__input trainer-run-form__km" />
+              <select value={runForm.type}
                 onChange={e => setRunForm(f => ({ ...f, type: e.target.value as RunEntry['type'] }))}
-                className="trainer-run-form__input trainer-run-form__type"
-              >
+                className="trainer-run-form__input trainer-run-form__type">
                 <option value="long">Langer Lauf</option>
-                <option value="tempo">Tempo</option>
-                <option value="easy">Locker</option>
+                <option value="tempo">Intervall</option>
+                <option value="easy">Basic / Locker</option>
               </select>
             </div>
             <button className="btn btn--primary btn--md" onClick={addRun} style={{ width: '100%' }}>
@@ -984,27 +1014,19 @@ export default function PlanPage() {
           </div>
 
           <div className="trainer-run-log">
-            {runs.length === 0 && (
-              <div className="trainer-empty">Noch keine Läufe eingetragen.</div>
-            )}
+            {runs.length === 0 && <div className="trainer-empty">Noch keine Läufe eingetragen.</div>}
             {[...runs].reverse().map((r, i) => {
               const idx = runs.length - 1 - i
-              const typeLabel = r.type === 'long' ? 'Lang' : r.type === 'tempo' ? 'Tempo' : 'Locker'
+              const typeLabel = r.type === 'long' ? 'Lang' : r.type === 'tempo' ? 'Intervall' : 'Locker'
               return (
                 <div key={idx} className="trainer-run-entry">
                   <div className="trainer-run-entry__left">
                     <span className="trainer-run-entry__date">{r.date}</span>
-                    <span className={`trainer-run-entry__type trainer-run-entry__type--${r.type}`}>
-                      {typeLabel}
-                    </span>
+                    <span className={`trainer-run-entry__type trainer-run-entry__type--${r.type}`}>{typeLabel}</span>
                   </div>
                   <div className="trainer-run-entry__right">
                     <span className="trainer-run-entry__dist">{r.distance} km</span>
-                    <button
-                      className="trainer-run-entry__del"
-                      onClick={() => deleteRun(idx)}
-                      aria-label="Lauf löschen"
-                    >
+                    <button className="trainer-run-entry__del" onClick={() => deleteRun(idx)} aria-label="Lauf löschen">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="3 6 5 6 21 6"/>
                         <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
@@ -1017,11 +1039,9 @@ export default function PlanPage() {
               )
             })}
           </div>
-
         </div>
       )}
 
-      {/* Exercise editor bottom sheet */}
       {exerciseEditor && (
         <ExerciseEditor
           actKey={exerciseEditor}
@@ -1030,7 +1050,6 @@ export default function PlanPage() {
           onSave={saveExercises}
         />
       )}
-
     </div>
   )
 }
