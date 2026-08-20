@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(open \"http://127.0.0.1:51360/today.html\")",
+      "Bash(open \"http://127.0.0.1:51360/library.html\")",
+      "Bash(open \"http://127.0.0.1:51360/activity.html\")",
+      "Bash(find /Users/mischaweyermann/Downloads/ui_kits -type f | head -60)",
+      "Read(//Users/mischaweyermann/Downloads/ui_kits/**)",
+      "Bash(mkdir -p /Users/mischaweyermann/motus/fonts && cp /Users/mischaweyermann/Downloads/ui_kits/motus_app/fonts/Manrope-VariableFont_wght.ttf /Users/mischaweyermann/motus/fonts/ && echo \"Font copied\")",
+      "Bash(npm run *)",
+      "Bash(npm start *)",
+      "Bash(git -C /Users/mischaweyermann/motus status)",
+      "Bash(git -C /Users/mischaweyermann/motus log --oneline -5)",
+      "Bash(git -C /Users/mischaweyermann/motus remote -v)",
+      "Bash(npm install *)",
+      "Bash(rm /Users/mischaweyermann/motus/*.html /Users/mischaweyermann/motus/style.css /Users/mischaweyermann/motus/style.css.map && rm -rf /Users/mischaweyermann/motus/js/ /Users/mischaweyermann/motus/html/ /Users/mischaweyermann/motus/fonts/ && echo \"done\")"
+    ],
+    "additionalDirectories": [
+      "/Users/mischaweyermann/Downloads/ui_kits/motus_app/fonts",
+      "/Users/mischaweyermann/motus"
+    ]
+  }
+}

@@ -100,6 +100,13 @@
     line-height: 1.05;
   }
 
+  &__sub {
+    font-size: 12px;
+    font-weight: 600;
+    color: $cream600;
+    margin-top: 2px;
+  }
+
   &__action {
     width: 44px;
     height: 44px;
@@ -109,6 +116,21 @@
     display: grid;
     place-items: center;
     cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  &__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: $radius-full;
+    object-fit: cover;
     flex-shrink: 0;
   }
 }

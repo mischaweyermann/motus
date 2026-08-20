@@ -1,5 +1,8 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
+import { ExercisePictogram } from '@/components/ExercisePictogram'
+import { PhotoSlot } from '@/components/PhotoSlot'
+import { ProgressRing } from '@/components/ProgressRing'
 
 // ── Data ─────────────────────────────────────────────────────────────
 
@@ -24,16 +27,18 @@ const ZONE_COLORS: Record<Zone, string> = {
   rest: '#D4CEC2',
 }
 
+function zoneTextColor(zone: Zone): string {
+  return zone === 'rest' ? '#1F1F1F' : '#FAF7F1'
+}
+
+
 type Activity = { key: string; label: string; zone: Zone }
 
 const ACTIVITY_TYPES: Activity[] = [
-  { key: 'gym_brust_ruecken',  label: 'Brust & Rücken',   zone: 'gym' },
-  { key: 'gym_arme_schultern', label: 'Arme & Schultern',  zone: 'gym' },
-  { key: 'gym_beine_core',     label: 'Beine & Core',      zone: 'gym' },
-  { key: 'kb_full',            label: 'KB: Ganzkörper',    zone: 'home' },
-  { key: 'kb_lower',           label: 'KB: Unterkörper',   zone: 'home' },
-  { key: 'kb_upper',           label: 'KB: Oberkörper',    zone: 'home' },
-  { key: 'kb_core',            label: 'KB: Core',          zone: 'home' },
+  { key: 'gym_training1',      label: 'Training 1',        zone: 'gym' },
+  { key: 'gym_training2',      label: 'Training 2',        zone: 'gym' },
+  { key: 'gym_training3',      label: 'Training 3',        zone: 'gym' },
+  { key: 'kb_training',        label: 'Kettlebell Training', zone: 'home' },
   { key: 'run_long',           label: 'Langer Lauf',       zone: 'run' },
   { key: 'run_intervall',      label: 'Intervall',         zone: 'run' },
   { key: 'run_basic',          label: 'Basic (~5km)',       zone: 'run' },
@@ -48,174 +53,131 @@ const ACTIVITY_MAP: Record<string, Activity> = Object.fromEntries(
 )
 
 const DEFAULT_TEMPLATE: Record<DayKey, string[]> = {
-  mo: ['gym_beine_core'],
-  di: ['gym_brust_ruecken'],
-  mi: ['flex'],
-  do: ['gym_arme_schultern'],
-  fr: ['kb_full'],
+  mo: ['gym_training1'],
+  di: ['kb_training'],
+  mi: ['gym_training2'],
+  do: ['flex'],
+  fr: ['gym_training3'],
   sa: ['run_long'],
   so: ['rest'],
 }
 
-// Migrate old activity keys to new ones
+// Migrate old activity keys to the current plan (2026-08-20 coach rework)
 const KEY_MIGRATION: Record<string, string> = {
-  gym_push:   'gym_brust_ruecken',
-  gym_pull:   'gym_brust_ruecken',
-  gym_legs:   'gym_beine_core',
-  kettlebell: 'kb_full',
-  run:        'run_long',
+  gym_push:           'gym_training1',
+  gym_pull:            'gym_training2',
+  gym_legs:            'gym_training3',
+  gym_brust_ruecken:   'gym_training1',
+  gym_arme_schultern:  'gym_training2',
+  gym_beine_core:      'gym_training3',
+  gym_rumpf_core:      'gym_training1',
+  kettlebell:          'kb_training',
+  kb_full:             'kb_training',
+  kb_lower:            'kb_training',
+  kb_upper:            'kb_training',
+  kb_core:             'kb_training',
+  run:                 'run_long',
 }
 
-type Exercise = { id: string; name: string; sets: number; reps: string }
+type Exercise = { id: string; name: string; sets: number; reps: string; cue?: string }
 
 const EXERCISES: Record<string, Exercise[]> = {
-  gym_brust_ruecken: [
-    { id: 'br1', name: 'Bankdrücken',          sets: 4, reps: '6-8' },
-    { id: 'br2', name: 'Klimmzüge',            sets: 4, reps: '6-8' },
-    { id: 'br3', name: 'Schrägbankdrücken',    sets: 3, reps: '8-10' },
-    { id: 'br4', name: 'Rudern vorgebeugt',    sets: 3, reps: '8-10' },
-    { id: 'br5', name: 'Fliegende Kurzhantel', sets: 3, reps: '12' },
-    { id: 'br6', name: 'Face Pulls',           sets: 3, reps: '15' },
+  gym_training1: [
+    { id: 'tra1', name: 'Benchpress',                            sets: 5, reps: '6-12' },
+    { id: 'tra2', name: 'Lateral Rows',                          sets: 5, reps: '6-12' },
+    { id: 'tra3', name: 'Klappmesser mit Ball',                  sets: 5, reps: '6-12' },
+    { id: 'tra4', name: 'Bulgarian Split Squat mit Kurzhanteln', sets: 5, reps: '6-12/Bein' },
   ],
-  gym_arme_schultern: [
-    { id: 'as1', name: 'Schulterdrücken',       sets: 4, reps: '8-10' },
-    { id: 'as2', name: 'Bizepscurls',           sets: 3, reps: '10-12' },
-    { id: 'as3', name: 'Trizepsdrücken Kabel',  sets: 3, reps: '10-12' },
-    { id: 'as4', name: 'Seitheben',             sets: 3, reps: '12-15' },
-    { id: 'as5', name: 'Hammercurls',           sets: 3, reps: '10-12' },
-    { id: 'as6', name: 'Trizeps Overhead',      sets: 3, reps: '10-12' },
+  gym_training2: [
+    { id: 'trb1', name: 'Cross Crunches', sets: 5, reps: '6-12' },
+    { id: 'trb2', name: 'Deadlifts',      sets: 5, reps: '6-12' },
+    { id: 'trb3', name: 'Pull-Ups',       sets: 5, reps: 'max' },
+    { id: 'trb4', name: 'Push-Ups',       sets: 5, reps: 'max' },
   ],
-  gym_beine_core: [
-    { id: 'bc1', name: 'Kniebeuge',              sets: 4, reps: '6-8' },
-    { id: 'bc2', name: 'Rumänisches Kreuzheben', sets: 3, reps: '8-10' },
-    { id: 'bc3', name: 'Ausfallschritte',        sets: 3, reps: '10/Bein' },
-    { id: 'bc4', name: 'Wadenheben',             sets: 3, reps: '12-15' },
-    { id: 'bc5', name: 'Plank',                  sets: 3, reps: '45s' },
+  gym_training3: [
+    { id: 'trc1', name: 'Deep Squats',                                    sets: 5, reps: '6-12' },
+    { id: 'trc2', name: 'Dips',                                           sets: 5, reps: '6-12' },
+    { id: 'trc3', name: 'Klappmesser / Cross Klappmesser (abwechselnd)',  sets: 5, reps: '6-12' },
+    { id: 'trc4', name: 'Reverse Benchpress',                             sets: 5, reps: '6-12' },
   ],
-  kb_full: [
-    { id: 'kbf1', name: 'KB Swings',        sets: 4, reps: '20' },
-    { id: 'kbf2', name: 'Goblet Squats',    sets: 3, reps: '12' },
-    { id: 'kbf3', name: 'KB Clean & Press', sets: 3, reps: '8/Seite' },
-    { id: 'kbf4', name: 'KB Rows',          sets: 3, reps: '10/Seite' },
-    { id: 'kbf5', name: 'Turkish Get-Up',   sets: 3, reps: '3/Seite' },
-  ],
-  kb_lower: [
-    { id: 'kbl1', name: 'KB Swings',           sets: 4, reps: '20' },
-    { id: 'kbl2', name: 'Goblet Squats',        sets: 4, reps: '12' },
-    { id: 'kbl3', name: 'KB Deadlift',          sets: 3, reps: '10' },
-    { id: 'kbl4', name: 'KB Front Rack Squat',  sets: 3, reps: '10' },
-    { id: 'kbl5', name: 'Halos',               sets: 2, reps: '10/Seite' },
-  ],
-  kb_upper: [
-    { id: 'kbu1', name: 'KB Clean & Press', sets: 4, reps: '8/Seite' },
-    { id: 'kbu2', name: 'KB Rows',          sets: 3, reps: '10/Seite' },
-    { id: 'kbu3', name: 'KB Push Press',    sets: 3, reps: '8/Seite' },
-    { id: 'kbu4', name: 'Halos',            sets: 3, reps: '10/Seite' },
-    { id: 'kbu5', name: 'KB Windmill',      sets: 2, reps: '8/Seite' },
-  ],
-  kb_core: [
-    { id: 'kbc1', name: 'Plank',                   sets: 4, reps: '45s' },
-    { id: 'kbc2', name: 'KB Windmill',             sets: 3, reps: '8/Seite' },
-    { id: 'kbc3', name: 'Turkish Get-Up',          sets: 3, reps: '3/Seite' },
-    { id: 'kbc4', name: 'Halos',                   sets: 3, reps: '12/Seite' },
-    { id: 'kbc5', name: 'Russian Twists mit KB',   sets: 3, reps: '20' },
+  kb_training: [
+    { id: 'kbt1', name: 'Kettlebell Swings',   sets: 4, reps: '15-20',
+      cue: 'Kraft nur aus der Hüfte holen. Rücken (bes. unterer Rücken) gerade halten.' },
+    { id: 'kbt2', name: 'Russian-Twist',       sets: 4, reps: '20',
+      cue: 'KB berührt bei jeder Rotation den Boden (ohne Lärm). Wie im Bild halten oder ganze Kugel greifen (schwieriger).' },
+    { id: 'kbt3', name: 'Goblet Squats',       sets: 4, reps: '12',
+      cue: 'So tief wie möglich absitzen, unten 0.5s pausieren. Oberkörper aufrecht.' },
+    { id: 'kbt4', name: 'Lunge Overheadpress', sets: 4, reps: '8/Seite',
+      cue: 'Stabiler Ausfallschritt (Knie Richtung Boden). Ellbogen beim Hochdrücken unter dem KB halten, Oberkörper gerade.' },
   ],
 }
 
 const EXERCISE_LIBRARY: Record<string, Array<{ name: string; sets: number; reps: string }>> = {
-  gym_brust_ruecken: [
-    { name: 'Bankdrücken',          sets: 4, reps: '6-8' },
-    { name: 'Schrägbankdrücken',    sets: 3, reps: '8-10' },
-    { name: 'Klimmzüge',            sets: 4, reps: '6-8' },
-    { name: 'Rudern vorgebeugt',    sets: 3, reps: '8-10' },
-    { name: 'Fliegende Kurzhantel', sets: 3, reps: '12' },
-    { name: 'Latzug weit',          sets: 3, reps: '10-12' },
-    { name: 'T-Bar Rudern',         sets: 3, reps: '8-10' },
-    { name: 'Face Pulls',           sets: 3, reps: '15' },
-    { name: 'Reverse Flyes',        sets: 3, reps: '15' },
-    { name: 'Dips',                 sets: 3, reps: '8-12' },
-    { name: 'Push-ups',             sets: 3, reps: '15-20' },
-    { name: 'Rudern Kabel',         sets: 3, reps: '10-12' },
-    { name: 'Einarm KB Rudern',     sets: 3, reps: '10/Seite' },
+  gym_training1: [
+    { name: 'Benchpress',                            sets: 5, reps: '6-12' },
+    { name: 'Lateral Rows',                          sets: 5, reps: '6-12' },
+    { name: 'Klappmesser mit Ball',                  sets: 5, reps: '6-12' },
+    { name: 'Bulgarian Split Squat mit Kurzhanteln', sets: 5, reps: '6-12/Bein' },
   ],
-  gym_arme_schultern: [
-    { name: 'Schulterdrücken',       sets: 4, reps: '8-10' },
-    { name: 'Bizepscurls',           sets: 3, reps: '10-12' },
-    { name: 'Trizepsdrücken Kabel',  sets: 3, reps: '10-12' },
-    { name: 'Seitheben',             sets: 3, reps: '12-15' },
-    { name: 'Hammercurls',           sets: 3, reps: '10-12' },
-    { name: 'Trizeps Overhead',      sets: 3, reps: '10-12' },
-    { name: 'Arnold Press',          sets: 3, reps: '10-12' },
-    { name: 'Frontdrücken',          sets: 3, reps: '10-12' },
-    { name: 'Konzentrationscurls',   sets: 3, reps: '10/Seite' },
-    { name: 'Skull Crushers',        sets: 3, reps: '10-12' },
-    { name: 'Upright Row',           sets: 3, reps: '12' },
-    { name: 'Reverse Curls',         sets: 3, reps: '12' },
+  gym_training2: [
+    { name: 'Cross Crunches', sets: 5, reps: '6-12' },
+    { name: 'Deadlifts',      sets: 5, reps: '6-12' },
+    { name: 'Pull-Ups',       sets: 5, reps: 'max' },
+    { name: 'Push-Ups',       sets: 5, reps: 'max' },
   ],
-  gym_beine_core: [
-    { name: 'Kniebeuge',              sets: 4, reps: '6-8' },
-    { name: 'Rumänisches Kreuzheben', sets: 3, reps: '8-10' },
-    { name: 'Ausfallschritte',        sets: 3, reps: '10/Bein' },
-    { name: 'Wadenheben',             sets: 3, reps: '12-15' },
-    { name: 'Plank',                  sets: 3, reps: '45s' },
-    { name: 'Beinpresse',             sets: 4, reps: '10-12' },
-    { name: 'Bein-Curl',              sets: 3, reps: '10-12' },
-    { name: 'Hip Thrust',             sets: 3, reps: '10-12' },
-    { name: 'Sumo Kniebeuge',         sets: 4, reps: '8-10' },
-    { name: 'Bulgarian Split Squat',  sets: 3, reps: '8/Bein' },
-    { name: 'Kreuzheben',             sets: 4, reps: '5-6' },
-    { name: 'Leg Extension',          sets: 3, reps: '12-15' },
-    { name: 'Ab Wheel',               sets: 3, reps: '10' },
-    { name: 'Russian Twists',         sets: 3, reps: '20' },
+  gym_training3: [
+    { name: 'Deep Squats',                                   sets: 5, reps: '6-12' },
+    { name: 'Dips',                                          sets: 5, reps: '6-12' },
+    { name: 'Klappmesser / Cross Klappmesser (abwechselnd)', sets: 5, reps: '6-12' },
+    { name: 'Reverse Benchpress',                            sets: 5, reps: '6-12' },
   ],
-  kb_full: [
-    { name: 'KB Swings',          sets: 4, reps: '20' },
-    { name: 'Goblet Squats',      sets: 3, reps: '12' },
-    { name: 'KB Clean & Press',   sets: 3, reps: '8/Seite' },
-    { name: 'KB Rows',            sets: 3, reps: '10/Seite' },
-    { name: 'Turkish Get-Up',     sets: 3, reps: '3/Seite' },
-    { name: 'KB Snatch',          sets: 3, reps: '8/Seite' },
-    { name: 'KB Push Press',      sets: 3, reps: '8/Seite' },
-    { name: 'Halos',              sets: 2, reps: '10/Seite' },
-    { name: 'KB Deadlift',        sets: 3, reps: '10' },
-  ],
-  kb_lower: [
-    { name: 'KB Swings',            sets: 4, reps: '20' },
-    { name: 'Goblet Squats',        sets: 4, reps: '12' },
-    { name: 'KB Deadlift',          sets: 3, reps: '10' },
-    { name: 'KB Front Rack Squat',  sets: 3, reps: '10' },
-    { name: 'Halos',                sets: 2, reps: '10/Seite' },
-    { name: 'Lunge mit KB',         sets: 3, reps: '10/Bein' },
-    { name: 'KB Sumo Deadlift',     sets: 3, reps: '12' },
-  ],
-  kb_upper: [
-    { name: 'KB Clean & Press',  sets: 4, reps: '8/Seite' },
-    { name: 'KB Rows',           sets: 3, reps: '10/Seite' },
-    { name: 'KB Push Press',     sets: 3, reps: '8/Seite' },
-    { name: 'Halos',             sets: 3, reps: '10/Seite' },
-    { name: 'KB Windmill',       sets: 2, reps: '8/Seite' },
-    { name: 'KB Floor Press',    sets: 3, reps: '10/Seite' },
-    { name: 'KB Renegade Row',   sets: 3, reps: '8/Seite' },
-  ],
-  kb_core: [
-    { name: 'Plank',                 sets: 4, reps: '45s' },
-    { name: 'KB Windmill',           sets: 3, reps: '8/Seite' },
-    { name: 'Turkish Get-Up',        sets: 3, reps: '3/Seite' },
-    { name: 'Halos',                 sets: 3, reps: '12/Seite' },
-    { name: 'KB Swings',             sets: 3, reps: '15' },
-    { name: 'Ab Wheel',              sets: 3, reps: '10' },
-    { name: 'Russian Twists mit KB', sets: 3, reps: '20' },
-    { name: 'Dead Bug',              sets: 3, reps: '10/Seite' },
+  kb_training: [
+    { name: 'Kettlebell Swings',   sets: 4, reps: '15-20' },
+    { name: 'Russian-Twist',       sets: 4, reps: '20' },
+    { name: 'Goblet Squats',       sets: 4, reps: '12' },
+    { name: 'Lunge Overheadpress', sets: 4, reps: '8/Seite' },
   ],
 }
 
-const GYM_KB_ACTS = [
-  'gym_brust_ruecken', 'gym_arme_schultern', 'gym_beine_core',
-  'kb_full', 'kb_lower', 'kb_upper', 'kb_core',
-]
+const GYM_KB_ACTS = ['gym_training1', 'gym_training2', 'gym_training3', 'kb_training']
+
+// 6-Wochen-Zyklus (Trainingsplan Mischa Weyermann, 20.08.2026): Wochen 1–3 normal,
+// Woche 4+6 Deload, Woche 5 Heavy Week. Reihenfolge wiederholt sich danach.
+const CYCLE_LENGTH = 6
+type CycleType = 'normal' | 'deload' | 'heavy'
+
+const CYCLE_TYPE_LABELS: Record<CycleType, string> = {
+  normal: 'Normal', deload: 'Deload', heavy: 'Heavy Week',
+}
+const CYCLE_TYPE_REPS: Record<CycleType, string> = {
+  normal: '6–12 Wdh.',
+  deload: '12–16 Wdh. (kein Max)',
+  heavy:  '1–3 Wdh. auf Maximalgewicht',
+}
+
+function cycleTypeForWeek(weekInCycle: number): CycleType {
+  if (weekInCycle === 5) return 'heavy'
+  if (weekInCycle === 4 || weekInCycle === 6) return 'deload'
+  return 'normal'
+}
+
+function cycleWeekInfo(weekStart: Date, cycleStart: Date): { weekInCycle: number; type: CycleType } {
+  const diffWeeks = Math.round((weekStart.getTime() - cycleStart.getTime()) / (7 * 86400000))
+  const weekInCycle = ((diffWeeks % CYCLE_LENGTH) + CYCLE_LENGTH) % CYCLE_LENGTH + 1
+  return { weekInCycle, type: cycleTypeForWeek(weekInCycle) }
+}
+
+// General rules that apply regardless of which week of the cycle it is —
+// the week-specific rep target is prepended dynamically at render time.
+const GYM_CYCLE_NOTE = '5 Sätze pro Übung (+1 Aufwärmsatz falls nötig), Wiederholungen sinken über die Sätze. Pause: 1:30 normal, 2:00 bei Maximalkraft-Sätzen. Mind. 36–48h Pause zwischen Training 1 und 3 — sonst frei planbar (z.B. Training + Tennis am selben Tag ist ok). Elektrolyte nicht vergessen — Müdigkeit erhöht das Verletzungsrisiko.'
+
+function gymWeekNote(info: { weekInCycle: number; type: CycleType }): string {
+  return `Woche ${info.weekInCycle}/6 · ${CYCLE_TYPE_LABELS[info.type]} — Zielbereich: ${CYCLE_TYPE_REPS[info.type]}. ${GYM_CYCLE_NOTE}`
+}
 
 const NOTES: Record<string, string> = {
-  run_long:     'Langer Lauf — Distanz im Tab «Lauf-Aufbau» eintragen. Pace: 60–70% HRmax, ruhig halten. Wöchentliche Steigerung: ~10%.',
+  kb_training:  'Superset-Format, 4 Sets: Übung 1 → 45s Pause → Übung 2 → 45s Pause → wiederholen.',
+  run_long:     'Langer Lauf — Pace: 60–70% HRmax, ruhig halten. Wöchentliche Steigerung: ~10%.',
   run_intervall:'Intervall — z.B. 6×800m oder 4×1km. 10 min Aufwärmen, danach lockerer Auslauf. Hohe neuromuskuläre Last.',
   run_basic:    'Basic (~5km) — lockeres, aerobes Tempo. Ideal als Erholung oder Tageseinstieg.',
   tennis:       'Tennis — zählt als Konditionsreiz. An Gym-Tagen eher als lockere Ergänzung.',
@@ -224,24 +186,25 @@ const NOTES: Record<string, string> = {
   rest:         'Ruhetag oder leichte Mobility. Erholung ist aktiver Teil des Muskelaufbaus.',
 }
 
-const HALF_MARATHON_KM = 21.1
 const MONTHS_DE = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez']
 
 // ── Warning system ────────────────────────────────────────────────────
 // Tag-based: warnings fire based on actual muscle groups stressed,
-// not hardcoded activity names — so kb_core doesn't trigger leg warnings.
+// not hardcoded activity names.
 //
 // Sources: Frontiers (2025), Barbell Medicine, PMC 5752732, PMC 7224562,
 //          PMC 11359207, PMC 5093324, PLOS ONE 0233134, TrainingPeaks
 
 type Warning = { severity: 'warning' | 'info'; text: string }
 
-// Activities that significantly stress lower body
-const LOWER = ['gym_beine_core', 'kb_full', 'kb_lower', 'run_long']
+// Training 1/2/3 and Kettlebell Training are full-body sessions (each mixes a
+// squat/hinge-pattern lift with press/pull/core work) — unlike the old
+// muscle-group split, they all count as both LOWER and UPPER stress.
+const LOWER = ['gym_training1', 'gym_training2', 'gym_training3', 'kb_training', 'run_long']
 // Activities that significantly stress upper body
-const UPPER = ['gym_brust_ruecken', 'gym_arme_schultern', 'kb_full', 'kb_upper']
+const UPPER = ['gym_training1', 'gym_training2', 'gym_training3', 'kb_training']
 // Lower-body strength activities (not just cardio)
-const STR_LOWER = ['gym_beine_core', 'kb_lower', 'kb_full']
+const STR_LOWER = ['gym_training1', 'gym_training2', 'gym_training3', 'kb_training']
 // High-intensity cardio (significant fatigue + leg stress for run_long)
 const RUN_HI = ['run_long', 'run_intervall']
 // Low-intensity cardio
@@ -318,27 +281,23 @@ function analyzeDay(k: DayKey, t: Record<DayKey, string[]>): Warning[] {
   if (aRunHi && nRunHi)
     w.push({ severity: 'warning', text: 'Intensiver Lauf heute → intensiver Lauf morgen: Zwei harte Cardio-Einheiten hintereinander — Erholung nicht ausreichend. Eine Einheit locker halten.' })
 
-  // Same gym type tomorrow
-  const GYM_TYPES = ['gym_beine_core', 'gym_brust_ruecken', 'gym_arme_schultern'] as const
+  // Same training day tomorrow
+  const GYM_TYPES = ['gym_training1', 'gym_training2', 'gym_training3'] as const
   const GYM_WARN_LABELS: Record<string, string> = {
-    gym_beine_core:     'Beine & Core',
-    gym_brust_ruecken:  'Brust & Rücken',
-    gym_arme_schultern: 'Arme & Schultern',
+    gym_training1: 'Training 1',
+    gym_training2: 'Training 2',
+    gym_training3: 'Training 3',
   }
   for (const gt of GYM_TYPES) {
     if (acts.includes(gt) && next.includes(gt))
       w.push({ severity: 'warning', text: `${GYM_WARN_LABELS[gt]} morgen ebenfalls: Weniger als 48h Pause ist für Hypertrophie suboptimal und erhöht das Verletzungsrisiko.` })
   }
 
-  // Different lower strength types tomorrow (e.g. gym_beine_core + kb_lower)
-  if (aStrLower && nStrLower && !acts.some(a => STR_LOWER.includes(a) && next.includes(a)))
-    w.push({ severity: 'warning', text: 'Zwei verschiedene Unterkörper-Kraft-Einheiten hintereinander: Beine und posterior chain haben wenig Erholungszeit. Intensität morgen bewusst anpassen.' })
-
-  // Upper overlap tomorrow (partial muscle sharing)
-  if (acts.includes('gym_brust_ruecken') && next.includes('gym_arme_schultern'))
-    w.push({ severity: 'info', text: 'Brust & Rücken heute → Arme & Schultern morgen: Trizeps und vordere Schultern nach dem Push-Anteil noch leicht ermüdet.' })
-  if (acts.includes('gym_arme_schultern') && next.includes('gym_brust_ruecken'))
-    w.push({ severity: 'info', text: 'Arme & Schultern heute → Brust & Rücken morgen: Schultern und Trizeps beeinflussen die Push-Performance des Folgetags.' })
+  // Training 1 ↔ Training 3 specifically need the 36–48h gap (coach's explicit rule).
+  // Other day combinations are confirmed flexible (e.g. Training + Tennis same day is fine).
+  if ((acts.includes('gym_training1') && next.includes('gym_training3')) ||
+      (acts.includes('gym_training3') && next.includes('gym_training1')))
+    w.push({ severity: 'warning', text: 'Training 1 und Training 3 mit weniger als 36–48h Abstand: Laut Plan mindestens 36–48h Pause dazwischen einhalten.' })
 
   // ── Yesterday → today ───────────────────────────────────────────
 
@@ -355,21 +314,16 @@ function analyzeDay(k: DayKey, t: Record<DayKey, string[]>): Warning[] {
   if (pRunHi && aRunHi)
     w.push({ severity: 'warning', text: 'Intensiver Lauf gestern → intensiver Lauf heute: Tempo heute deutlich reduzieren oder auf Recovery-Lauf wechseln.' })
 
-  // Same gym type yesterday
+  // Same training day yesterday
   for (const gt of GYM_TYPES) {
     if (prev.includes(gt) && acts.includes(gt))
       w.push({ severity: 'warning', text: `${GYM_WARN_LABELS[gt]} gestern → heute: Zu wenig Erholung für optimale Hypertrophie. 48h Pause zwischen identischen Einheiten.` })
   }
 
-  // Different lower strength types yesterday
-  if (pStrLower && aStrLower && !prev.some(a => STR_LOWER.includes(a) && acts.includes(a)))
-    w.push({ severity: 'warning', text: 'Unterkörper-Kraft gestern → Unterkörper-Kraft heute: Zu wenig Erholungszeit für Beine und posterior chain. 48h Pause empfohlen.' })
-
-  // Upper overlap yesterday
-  if (prev.includes('gym_brust_ruecken') && acts.includes('gym_arme_schultern'))
-    w.push({ severity: 'info', text: 'Brust & Rücken gestern → Arme & Schultern heute: Trizeps und vordere Schultern noch leicht ermüdet.' })
-  if (prev.includes('gym_arme_schultern') && acts.includes('gym_brust_ruecken'))
-    w.push({ severity: 'info', text: 'Arme & Schultern gestern → Brust & Rücken heute: Schultern und Trizeps aus dem Vortag beeinflussen die Push-Performance.' })
+  // Training 1 ↔ Training 3 specifically (same rule, other direction)
+  if ((prev.includes('gym_training1') && acts.includes('gym_training3')) ||
+      (prev.includes('gym_training3') && acts.includes('gym_training1')))
+    w.push({ severity: 'warning', text: 'Training 1 und Training 3 mit weniger als 36–48h Abstand: Laut Plan mindestens 36–48h Pause dazwischen einhalten.' })
 
   return w
 }
@@ -395,45 +349,11 @@ function analyzeWeek(t: Record<DayKey, string[]>): Warning[] {
 
 function analyzeExercises(actKey: string, exs: Exercise[]): Warning[] {
   const w: Warning[] = []
-  const names = exs.map(e => e.name)
-
-  if (actKey === 'gym_brust_ruecken') {
-    const chestExs = ['Bankdrücken', 'Schrägbankdrücken', 'Fliegende Kurzhantel', 'Dips', 'Push-ups']
-    const backExs  = ['Klimmzüge', 'Rudern vorgebeugt', 'Latzug weit', 'T-Bar Rudern', 'Rudern Kabel', 'Einarm KB Rudern']
-    if (!names.some(n => chestExs.includes(n)))
-      w.push({ severity: 'info', text: 'Keine Brust-Übung erkannt. Bankdrücken oder Fliegende für Pectoralis-Aufbau empfohlen.' })
-    if (!names.some(n => backExs.includes(n)))
-      w.push({ severity: 'warning', text: 'Kein Rücken-Compound erkannt. Klimmzüge oder Rudern sind essentiell für Brust/Rücken-Balance.' })
-  }
-
-  if (actKey === 'gym_arme_schultern') {
-    const shoulderExs = ['Schulterdrücken', 'Seitheben', 'Frontdrücken', 'Arnold Press', 'Upright Row']
-    const bicepsExs   = ['Bizepscurls', 'Hammercurls', 'Konzentrationscurls', 'Reverse Curls']
-    const tricepsExs  = ['Trizepsdrücken Kabel', 'Trizeps Overhead', 'Skull Crushers', 'Dips']
-    if (!names.some(n => shoulderExs.includes(n)))
-      w.push({ severity: 'info', text: 'Keine Schulter-Übung erkannt. Schulterdrücken oder Seitheben für Deltoideus-Entwicklung.' })
-    if (!names.some(n => bicepsExs.includes(n)))
-      w.push({ severity: 'info', text: 'Keine Bizeps-Übung erkannt. Curls für ausgewogene Armentwicklung sinnvoll.' })
-    if (!names.some(n => tricepsExs.includes(n)))
-      w.push({ severity: 'info', text: 'Keine Trizeps-Übung erkannt. Trizeps macht ~2/3 des Oberarmvolumens aus — nicht vernachlässigen.' })
-  }
-
-  if (actKey === 'gym_beine_core') {
-    const quadExs = ['Kniebeuge', 'Beinpresse', 'Ausfallschritte', 'Sumo Kniebeuge', 'Bulgarian Split Squat', 'Leg Extension']
-    const hamExs  = ['Rumänisches Kreuzheben', 'Bein-Curl', 'Kreuzheben']
-    const coreExs = ['Plank', 'Ab Wheel', 'Russian Twists']
-    if (!names.some(n => quadExs.includes(n)))
-      w.push({ severity: 'warning', text: 'Kein Quad-Compound erkannt. Kniebeuge oder Beinpresse sind zentral für Oberschenkel-Aufbau.' })
-    if (!names.some(n => hamExs.includes(n)))
-      w.push({ severity: 'info', text: 'Keine Hamstring-Übung erkannt. Rumänisches Kreuzheben für posterior chain und Kniestabilität.' })
-    if (!names.some(n => coreExs.includes(n)))
-      w.push({ severity: 'info', text: 'Keine Core-Übung erkannt. Plank oder Ab Wheel für Rumpfstabilität sinnvoll.' })
-  }
 
   if (exs.length > 7)
     w.push({ severity: 'info', text: `${exs.length} Übungen geplant: Mehr als 6–7 senken die Intensität pro Satz. Qualität vor Quantität.` })
-  else if (exs.length < 3 && ['gym_brust_ruecken', 'gym_arme_schultern', 'gym_beine_core'].includes(actKey))
-    w.push({ severity: 'info', text: `Nur ${exs.length} Übung(en): Für einen effektiven Gym-Tag 4–5 Übungen empfohlen.` })
+  else if (exs.length < 3 && GYM_KB_ACTS.includes(actKey))
+    w.push({ severity: 'info', text: `Nur ${exs.length} Übung(en): Für einen effektiven Trainingstag 4–5 Übungen empfohlen.` })
 
   return w
 }
@@ -451,7 +371,14 @@ function lsSet(key: string, val: unknown) {
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
-function isoDate(d: Date) { return d.toISOString().slice(0, 10) }
+// Local calendar date as YYYY-MM-DD — NOT d.toISOString(), which converts to UTC
+// and rolls back a day in timezones ahead of UTC (e.g. midnight CEST → previous day).
+function isoDate(d: Date): string {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
 
 function getMonday(d: Date): Date {
   const date = new Date(d)
@@ -485,9 +412,14 @@ function getExercises(actKey: string, custom: Record<string, Exercise[]>): Exerc
   return custom[actKey] ?? EXERCISES[actKey] ?? []
 }
 
-// ── Types ─────────────────────────────────────────────────────────────
-
-type RunEntry = { date: string; distance: number; type: 'long' | 'tempo' | 'easy' }
+function greeting(): string {
+  const h = new Date().getHours()
+  if (h < 5) return 'Noch wach?'
+  if (h < 11) return 'Guten Morgen'
+  if (h < 17) return 'Guten Tag'
+  if (h < 22) return 'Guten Abend'
+  return 'Noch wach?'
+}
 
 // ── Sub-components ───────────────────────────────────────────────────
 
@@ -523,15 +455,16 @@ function WeekOverview({
         const warnCount = warnings.filter(w => w.severity === 'warning').length
         const infoCount = warnings.filter(w => w.severity === 'info').length
 
+        const iconZone = (ACTIVITY_MAP[acts[0]]?.zone ?? 'rest') as Zone
+        const iconColor = isRest ? '#E8E1D2' : ZONE_COLORS[iconZone]
+
         return (
           <div key={k} className="week-day-row" onClick={() => onSelect(k)}>
-            <div className="week-day-row__meta">
-              <span className="week-day-row__name">{DAY_LABELS[k]}</span>
-              <span className="week-day-row__date">
-                {d.toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit' })}
-              </span>
+            <div className="week-day-row__icon" style={{ background: iconColor, color: zoneTextColor(isRest ? 'rest' : iconZone) }}>
+              {d.getDate()}
             </div>
             <div className="week-day-row__content">
+              <span className="week-day-row__name">{DAY_LABELS[k]}</span>
               {isRest ? (
                 <span className="week-day-row__rest">Ruhetag</span>
               ) : (
@@ -544,9 +477,8 @@ function WeekOverview({
                         key={a}
                         className="week-day-row__chip"
                         style={{
-                          color: ZONE_COLORS[act.zone as Zone],
-                          background: ZONE_COLORS[act.zone as Zone] + '14',
-                          borderColor: ZONE_COLORS[act.zone as Zone] + '35',
+                          background: ZONE_COLORS[act.zone as Zone],
+                          color: zoneTextColor(act.zone as Zone),
                         }}
                       >
                         {act.label}
@@ -632,7 +564,10 @@ function ExerciseEditor({
           <div className="ex-editor-list">
             {list.map(ex => (
               <div key={ex.id} className="ex-editor-row">
-                <span className="ex-editor-row__name">{ex.name}</span>
+                <div className="ex-editor-row__label">
+                  <ExercisePictogram name={ex.name} className="ex-editor-row__icon" />
+                  <span className="ex-editor-row__name">{ex.name}</span>
+                </div>
                 <div className="ex-editor-row__controls">
                   <input type="number" min="1" max="10" value={ex.sets}
                     onChange={e => updateSets(ex.id, e.target.value)}
@@ -682,24 +617,33 @@ function ExerciseEditor({
 // ── Page ──────────────────────────────────────────────────────────────
 
 export default function PlanPage() {
-  const [tab, setTab] = useState<'week' | 'run'>('week')
   const [weekStart, setWeekStart] = useState<Date>(() => getMonday(new Date()))
   const [template, setTemplate] = useState<Record<DayKey, string[]>>(DEFAULT_TEMPLATE)
   const [checks, setChecks] = useState<Record<string, boolean>>({})
   const [weights, setWeights] = useState<Record<string, string>>({})
-  const [runs, setRuns] = useState<RunEntry[]>([])
-  const [runForm, setRunForm] = useState({ date: isoDate(new Date()), distance: '', type: 'long' as RunEntry['type'] })
   const [selectedDay, setSelectedDay] = useState<DayKey | null>(null)
   const [editMode, setEditMode] = useState(false)
   const [customExercises, setCustomExercises] = useState<Record<string, Exercise[]>>({})
   const [exerciseEditor, setExerciseEditor] = useState<string | null>(null)
+  const [cycleStart, setCycleStart] = useState<Date>(() => getMonday(new Date()))
 
   const weekId = isoDate(weekStart)
+
+  // Cycle start is a global setting, loaded once (not tied to the viewed week).
+  useEffect(() => {
+    const saved = lsGet<string>('motus-cycle-start')
+    if (saved) setCycleStart(new Date(saved + 'T00:00:00'))
+  }, [])
+
+  const updateCycleStart = useCallback((dateStr: string) => {
+    const d = getMonday(new Date(dateStr + 'T00:00:00'))
+    setCycleStart(d)
+    lsSet('motus-cycle-start', isoDate(d))
+  }, [])
 
   useEffect(() => {
     setChecks(lsGet<Record<string, boolean>>('motus-checks-' + weekId) ?? {})
     setWeights(lsGet<Record<string, string>>('motus-weights') ?? {})
-    setRuns(lsGet<RunEntry[]>('motus-runs') ?? [])
 
     const thisWeek = lsGet<Record<string, string[]>>('motus-template-' + weekId)
     if (thisWeek) {
@@ -753,21 +697,6 @@ export default function PlanPage() {
     setCustomExercises(prev => ({ ...prev, [actKey]: exs }))
   }, [])
 
-  const addRun = useCallback(() => {
-    if (!runForm.distance) return
-    const next = [...runs, { ...runForm, distance: parseFloat(runForm.distance) }]
-      .sort((a, b) => a.date.localeCompare(b.date))
-    setRuns(next)
-    lsSet('motus-runs', next)
-    setRunForm({ date: isoDate(new Date()), distance: '', type: 'long' })
-  }, [runs, runForm])
-
-  const deleteRun = useCallback((idx: number) => {
-    const next = runs.filter((_, i) => i !== idx)
-    setRuns(next)
-    lsSet('motus-runs', next)
-  }, [runs])
-
   const shiftWeek = (delta: number) => {
     const d = new Date(weekStart)
     d.setDate(d.getDate() + delta * 7)
@@ -781,8 +710,28 @@ export default function PlanPage() {
     return d
   }
 
-  const longestRun = runs.length ? Math.max(...runs.map(r => r.distance)) : 0
-  const progressPct = Math.min(100, (longestRun / HALF_MARATHON_KM) * 100)
+  const todayKey: DayKey = DAY_KEYS[(new Date().getDay() + 6) % 7]
+
+  const jumpToToday = useCallback(() => {
+    setWeekStart(getMonday(new Date()))
+    setSelectedDay(todayKey)
+    setEditMode(false)
+  }, [todayKey])
+
+  const weekActKeys = [...new Set(DAY_KEYS.flatMap(k => template[k] ?? []))]
+    .filter(a => GYM_KB_ACTS.includes(a))
+  let totalSets = 0
+  let doneSets = 0
+  for (const actKey of weekActKeys) {
+    for (const ex of getExercises(actKey, customExercises)) {
+      totalSets += ex.sets
+      for (let si = 0; si < ex.sets; si++) {
+        if (checks[`${ex.id}-${si}`]) doneSets++
+      }
+    }
+  }
+  const weekProgressPct = totalSets > 0 ? Math.round((doneSets / totalSets) * 100) : 0
+
   const weekNum = isoWeekNumber(weekStart)
   const monthName = MONTHS_DE[weekStart.getMonth()]
   const weekWarnings = analyzeWeek(template)
@@ -792,15 +741,30 @@ export default function PlanPage() {
 
       <div className="app-header">
         <div className="app-header__text">
-          <div className="app-header__eyebrow">{monthName} · KW {weekNum}</div>
+          <div className="app-header__eyebrow">{greeting()}</div>
           <div className="app-header__title">Trainingsplan</div>
+          <div className="app-header__sub">{monthName} · KW {weekNum}</div>
         </div>
-        <button
-          className={`btn btn--sm ${editMode ? 'btn--primary' : 'btn--secondary'}`}
-          onClick={() => { setEditMode(e => !e); setSelectedDay(null) }}
-        >
-          {editMode ? 'Fertig' : 'Anpassen'}
-        </button>
+        <div className="app-header__actions">
+          <button
+            className={`btn btn--sm ${editMode ? 'btn--primary' : 'btn--secondary'}`}
+            onClick={() => { setEditMode(e => !e); setSelectedDay(null) }}
+          >
+            {editMode ? 'Fertig' : 'Anpassen'}
+          </button>
+          <PhotoSlot
+            src="/avatar.jpg"
+            alt="Profil"
+            fallbackColor="#C24B2E"
+            className="app-header__avatar"
+            fallback={
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FAF7F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 20c0-4 3.5-7 8-7s8 3 8 7" />
+              </svg>
+            }
+          />
+        </div>
       </div>
 
       <div className="trainer-day-strip">
@@ -819,7 +783,7 @@ export default function PlanPage() {
           ].filter(Boolean).join(' ')
           return (
             <div key={k} className={pillClass}
-              onClick={() => { setTab('week'); setSelectedDay(prev => prev === k ? null : k) }}>
+              onClick={() => setSelectedDay(prev => prev === k ? null : k)}>
               {hasWarn && <span className="trainer-day-pill__alert trainer-day-pill__alert--warning">!</span>}
               {hasInfo && <span className="trainer-day-pill__alert trainer-day-pill__alert--info">i</span>}
               <div className="trainer-day-pill__dots">
@@ -836,15 +800,7 @@ export default function PlanPage() {
         })}
       </div>
 
-      <div className="trainer-tabs">
-        {([['week', 'Diese Woche'], ['run', 'Lauf-Aufbau']] as const).map(([key, label]) => (
-          <button key={key} className={`trainer-tab${tab === key ? ' trainer-tab--active' : ''}`}
-            onClick={() => setTab(key)}>{label}</button>
-        ))}
-      </div>
-
-      {tab === 'week' && (
-        <div className="trainer-body">
+      <div className="trainer-body">
 
           {editMode && (
             <div className="card card--cream trainer-edit-panel">
@@ -862,7 +818,7 @@ export default function PlanPage() {
                           style={active ? {
                             background: ZONE_COLORS[a.zone],
                             borderColor: ZONE_COLORS[a.zone],
-                            color: a.zone === 'rest' ? '#1F1F1F' : '#FAF7F1',
+                            color: zoneTextColor(a.zone),
                           } : {}}
                           onClick={() => toggleActivity(k, a.key)}>
                           {a.label}
@@ -880,6 +836,65 @@ export default function PlanPage() {
 
           {!editMode && !selectedDay && (
             <>
+              <div className="card card--ink dash-hero">
+                <div className="dash-hero__info">
+                  <div className="dash-hero__eyebrow">Diese Woche</div>
+                  <div className="dash-hero__title">{doneSets} / {totalSets} Sätze</div>
+                  <button className="btn btn--primary btn--sm" onClick={jumpToToday}>Heute weiter</button>
+                </div>
+                <ProgressRing pct={weekProgressPct} track="rgba(250,247,241,0.14)" fill="#C24B2E">
+                  <div className="dash-hero__pct">{weekProgressPct}%</div>
+                </ProgressRing>
+              </div>
+
+              <div className="dash-quick-actions">
+                <button className="dash-quick-action" onClick={jumpToToday}>
+                  <span className="dash-quick-action__icon" style={{ background: '#C24B2E' }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FAF7F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  </span>
+                  Heute trainieren
+                </button>
+                <button className="dash-quick-action" onClick={() => { setEditMode(true); setSelectedDay(null) }}>
+                  <span className="dash-quick-action__icon" style={{ background: '#1F1F1F' }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FAF7F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
+                  </span>
+                  Plan anpassen
+                </button>
+              </div>
+
+              <div className="card card--cream dash-cycle">
+                <div className="dash-cycle__header">
+                  <div className="dash-cycle__title">Trainingszyklus</div>
+                  <label className="dash-cycle__start">
+                    Woche 1 ab
+                    <input
+                      type="date"
+                      value={isoDate(cycleStart)}
+                      onChange={e => updateCycleStart(e.target.value)}
+                    />
+                  </label>
+                </div>
+                <div className="dash-cycle__rows">
+                  {Array.from({ length: CYCLE_LENGTH }).map((_, i) => {
+                    const d = new Date(weekStart)
+                    d.setDate(d.getDate() + i * 7)
+                    const info = cycleWeekInfo(d, cycleStart)
+                    const isCurrent = i === 0
+                    return (
+                      <div key={i} className={`dash-cycle-row${isCurrent ? ' dash-cycle-row--current' : ''}`}>
+                        <span className="dash-cycle-row__label">
+                          {isCurrent ? 'Diese Woche' : `KW ${isoWeekNumber(d)}`}
+                        </span>
+                        <span className={`dash-cycle-row__type dash-cycle-row__type--${info.type}`}>
+                          Wo {info.weekInCycle} · {CYCLE_TYPE_LABELS[info.type]}
+                        </span>
+                        <span className="dash-cycle-row__reps">{CYCLE_TYPE_REPS[info.type]}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
               <WeekOverview template={template} weekStart={weekStart} onSelect={k => setSelectedDay(k)} />
               {weekWarnings.length > 0 && (
                 <div>
@@ -907,57 +922,76 @@ export default function PlanPage() {
                   const exs = getExercises(actKey, customExercises)
                   const date = dayDate(DAY_KEYS.indexOf(selectedDay))
                   const color = ZONE_COLORS[act.zone]
+                  const isGymTraining = actKey === 'gym_training1' || actKey === 'gym_training2' || actKey === 'gym_training3'
+                  const noteText = isGymTraining ? gymWeekNote(cycleWeekInfo(weekStart, cycleStart)) : NOTES[actKey]
                   return (
                     <div key={actKey} className="card card--cream trainer-card">
-                      <div className="trainer-card__header" style={{ borderLeftColor: color }}>
-                        <div className="trainer-card__header-top">
-                          <div>
-                            <div className="trainer-card__eyebrow" style={{ color }}>
-                              {DAY_LABELS[selectedDay]} · {date.toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit' })}
-                            </div>
-                            <div className="trainer-card__title">{act.label}</div>
-                          </div>
-                          {hasExercises && (
-                            <button className="trainer-edit-exercises-btn" onClick={() => setExerciseEditor(actKey)}>
-                              Übungen
-                            </button>
-                          )}
+                      <div className="sess-card" style={{ background: color }}>
+                        <span className="sess-card__badge">
+                          {DAY_LABELS[selectedDay]} · {date.toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit' })}
+                        </span>
+                        {hasExercises && <span className="sess-card__duration">{exs.length} Übungen</span>}
+                        {hasExercises && (
+                          <button className="sess-card__edit-btn" onClick={() => setExerciseEditor(actKey)} aria-label="Übungen anpassen">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M12 20h9" />
+                              <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                            </svg>
+                          </button>
+                        )}
+                        <div className="sess-card__content">
+                          <div className="sess-card__title">{act.label}</div>
                         </div>
                       </div>
 
-                      {hasExercises && exs.length > 0 ? (
+                      {noteText && <div className="trainer-card__note">{noteText}</div>}
+
+                      {hasExercises && exs.length > 0 && (
                         <div className="trainer-exercises">
-                          {exs.map(ex => (
-                            <div key={ex.id} className="trainer-exercise">
-                              <div className="trainer-exercise__top">
-                                <div className="trainer-exercise__name">{ex.name}</div>
-                                <div className="trainer-exercise__meta">{ex.sets}×{ex.reps}</div>
+                          {exs.map(ex => {
+                            const firstUndone = Array.from({ length: ex.sets })
+                              .findIndex((_, si) => !checks[`${ex.id}-${si}`])
+                            return (
+                              <div key={ex.id} className="trainer-exercise">
+                                <div className="trainer-exercise__top">
+                                  <div className="trainer-exercise__label">
+                                    <div className="trainer-exercise__icon-tile" style={{ background: color + '14', color }}>
+                                      <ExercisePictogram name={ex.name} className="trainer-exercise__icon" />
+                                    </div>
+                                    <div className="trainer-exercise__name">{ex.name}</div>
+                                  </div>
+                                  <div className="trainer-exercise__meta">{ex.sets}×{ex.reps}</div>
+                                </div>
+                                {ex.cue && <div className="trainer-exercise__cue">{ex.cue}</div>}
+                                <div className="trainer-exercise__bottom">
+                                  {Array.from({ length: ex.sets }).map((_, si) => {
+                                    const done = !!checks[`${ex.id}-${si}`]
+                                    const isActive = !done && si === firstUndone
+                                    const state = done ? 'done' : isActive ? 'active' : 'next'
+                                    const style = done
+                                      ? { background: color, borderColor: color, color: zoneTextColor(act.zone) }
+                                      : isActive
+                                        ? { background: color + '14', borderColor: color, color }
+                                        : { borderColor: color + '55' }
+                                    return (
+                                      <button key={si}
+                                        className={`trainer-set-btn${state !== 'next' ? ` trainer-set-btn--${state}` : ''}`}
+                                        style={style}
+                                        onClick={() => toggleCheck(ex.id, si)}
+                                        aria-label={`Satz ${si + 1}`}>
+                                        {si + 1}
+                                      </button>
+                                    )
+                                  })}
+                                  <input type="text" placeholder="kg"
+                                    value={weights[ex.id] ?? ''}
+                                    onChange={e => updateWeight(ex.id, e.target.value)}
+                                    className="trainer-weight-input" />
+                                </div>
                               </div>
-                              <div className="trainer-exercise__bottom">
-                                {Array.from({ length: ex.sets }).map((_, si) => {
-                                  const done = !!checks[`${ex.id}-${si}`]
-                                  return (
-                                    <button key={si}
-                                      className={`trainer-set-btn${done ? ' trainer-set-btn--done' : ''}`}
-                                      style={done
-                                        ? { background: color, borderColor: color, color: act.zone === 'rest' ? '#1F1F1F' : '#FAF7F1' }
-                                        : { borderColor: color + '55' }}
-                                      onClick={() => toggleCheck(ex.id, si)}
-                                      aria-label={`Satz ${si + 1}`}>
-                                      {si + 1}
-                                    </button>
-                                  )
-                                })}
-                                <input type="text" placeholder="kg"
-                                  value={weights[ex.id] ?? ''}
-                                  onChange={e => updateWeight(ex.id, e.target.value)}
-                                  className="trainer-weight-input" />
-                              </div>
-                            </div>
-                          ))}
+                            )
+                          })}
                         </div>
-                      ) : (
-                        <div className="trainer-card__note">{NOTES[actKey] ?? ''}</div>
                       )}
                     </div>
                   )
@@ -970,77 +1004,7 @@ export default function PlanPage() {
             <button className="btn btn--secondary btn--sm" onClick={() => shiftWeek(-1)}>← Vorwoche</button>
             <button className="btn btn--secondary btn--sm" onClick={() => shiftWeek(1)}>Nächste →</button>
           </div>
-        </div>
-      )}
-
-      {tab === 'run' && (
-        <div className="trainer-body">
-          <div className="card card--cream trainer-run-hero">
-            <div className="trainer-run-hero__eyebrow">Längster Lauf bisher</div>
-            <div className="trainer-run-hero__value">{longestRun.toFixed(1)} km</div>
-            <div className="trainer-run-hero__bar">
-              <div className="trainer-run-hero__bar-fill" style={{ width: `${progressPct}%` }} />
-            </div>
-            <div className="trainer-run-hero__range">
-              <span>0 km</span>
-              <span>Halbmarathon · {HALF_MARATHON_KM} km</span>
-            </div>
-          </div>
-
-          <div className="trainer-run-tip">
-            Steigere den langen Lauf wöchentlich um ca. 10%, bis ~18 km, dann 2 Wochen Taper.
-            Intervalle frühestens ab 15–20km Wochenbasis einbauen.
-          </div>
-
-          <div className="trainer-run-form">
-            <input type="date" value={runForm.date}
-              onChange={e => setRunForm(f => ({ ...f, date: e.target.value }))}
-              className="trainer-run-form__input" />
-            <div className="trainer-run-form__row">
-              <input type="number" step="0.1" placeholder="km" value={runForm.distance}
-                onChange={e => setRunForm(f => ({ ...f, distance: e.target.value }))}
-                className="trainer-run-form__input trainer-run-form__km" />
-              <select value={runForm.type}
-                onChange={e => setRunForm(f => ({ ...f, type: e.target.value as RunEntry['type'] }))}
-                className="trainer-run-form__input trainer-run-form__type">
-                <option value="long">Langer Lauf</option>
-                <option value="tempo">Intervall</option>
-                <option value="easy">Basic / Locker</option>
-              </select>
-            </div>
-            <button className="btn btn--primary btn--md" onClick={addRun} style={{ width: '100%' }}>
-              + Eintragen
-            </button>
-          </div>
-
-          <div className="trainer-run-log">
-            {runs.length === 0 && <div className="trainer-empty">Noch keine Läufe eingetragen.</div>}
-            {[...runs].reverse().map((r, i) => {
-              const idx = runs.length - 1 - i
-              const typeLabel = r.type === 'long' ? 'Lang' : r.type === 'tempo' ? 'Intervall' : 'Locker'
-              return (
-                <div key={idx} className="trainer-run-entry">
-                  <div className="trainer-run-entry__left">
-                    <span className="trainer-run-entry__date">{r.date}</span>
-                    <span className={`trainer-run-entry__type trainer-run-entry__type--${r.type}`}>{typeLabel}</span>
-                  </div>
-                  <div className="trainer-run-entry__right">
-                    <span className="trainer-run-entry__dist">{r.distance} km</span>
-                    <button className="trainer-run-entry__del" onClick={() => deleteRun(idx)} aria-label="Lauf löschen">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
-                        <path d="M10 11v6M14 11v6"/>
-                        <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
+      </div>
 
       {exerciseEditor && (
         <ExerciseEditor

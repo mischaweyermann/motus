@@ -1,0 +1,178 @@
+@use 'variables' as *;
+
+// ── Progress hero card ──────────────────────────────────────────────
+
+.dash-hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px;
+  background:
+    radial-gradient(120% 140% at 100% -10%, rgba($clay, 0.35), transparent 60%),
+    linear-gradient(160deg, #262220 0%, $ink 55%);
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  &__eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba($cream, 0.6);
+  }
+
+  &__title {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: $cream;
+    font-feature-settings: "tnum";
+    margin-bottom: 4px;
+  }
+
+  &__sub {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba($cream, 0.6);
+    margin-top: -4px;
+    margin-bottom: 4px;
+  }
+
+  &__pct {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: $cream;
+    font-feature-settings: "tnum";
+  }
+}
+
+// ── Quick actions ─────────────────────────────────────────────────────
+
+.dash-quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.dash-quick-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: $cream50;
+  border: 1px solid rgba($ink, 0.06);
+  box-shadow: 0 4px 12px rgba($ink, 0.05);
+  border-radius: $radius-lg;
+  padding: 12px 14px;
+  font-family: $font;
+  font-size: 13px;
+  font-weight: 700;
+  color: $ink;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  text-align: left;
+
+  &:active { opacity: 0.75; }
+
+  &__icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+}
+
+// ── Training cycle calendar ────────────────────────────────────────────
+
+.dash-cycle {
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  &__title {
+    font-size: 13px;
+    font-weight: 700;
+    color: $ink;
+    letter-spacing: -0.005em;
+  }
+
+  &__start {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: $cream700;
+
+    input {
+      font-family: $font;
+      font-size: 11px;
+      font-weight: 700;
+      color: $ink;
+      background: $cream100;
+      border: 1px solid rgba($ink, 0.10);
+      border-radius: 8px;
+      padding: 4px 6px;
+    }
+  }
+
+  &__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
+.dash-cycle-row {
+  display: grid;
+  grid-template-columns: 88px auto 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+
+  &--current {
+    background: rgba($ink, 0.05);
+  }
+
+  &__label {
+    font-size: 12px;
+    font-weight: 700;
+    color: $ink;
+  }
+
+  &__type {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: $radius-full;
+    white-space: nowrap;
+
+    &--normal { background: rgba($ink, 0.08); color: $cream700; }
+    &--deload { background: $success-bg; color: $success; }
+    &--heavy  { background: rgba($clay, 0.14); color: $clay; }
+  }
+
+  &__reps {
+    font-size: 11px;
+    font-weight: 600;
+    color: $cream700;
+    text-align: right;
+  }
+}
